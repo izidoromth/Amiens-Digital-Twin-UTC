@@ -1,3 +1,4 @@
+using Assets.Scripts;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +13,9 @@ public class CameraController : MonoBehaviour
     float x = 0;
     void Update()
     {
+        if (UIUtils.IsPointerOverUIElement())
+            return;
+
         if (Input.GetMouseButtonDown(0))
         {
             leftButtonPressed = true;
@@ -30,7 +34,7 @@ public class CameraController : MonoBehaviour
             rightButtonPressed = false;
         }
 
-        if (rightButtonPressed)
+        if (leftButtonPressed)
         {
             float mouseY = Input.GetAxis("Mouse Y");
             float mouseX = Input.GetAxis("Mouse X");
@@ -41,7 +45,7 @@ public class CameraController : MonoBehaviour
                 transform.eulerAngles = new Vector3(0, transform.eulerAngles.y);
         }
 
-        if (leftButtonPressed)
+        if (rightButtonPressed)
         {
             float mouseY = -Input.GetAxis("Mouse Y");
             float mouseX = -Input.GetAxis("Mouse X");
