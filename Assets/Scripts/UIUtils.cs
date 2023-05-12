@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -25,6 +26,11 @@ namespace Assets.Scripts
                     return true;
             }
             return false;
+        }
+        public static bool IsPointerOverUIElementByName(string name)
+        {
+            var UIElem = GetEventSystemRaycastResults().FirstOrDefault(r => r.gameObject.name == name).gameObject;
+            return UIElem != null && UIElem.name.Contains(name);
         }
         ///Gets all event systen raycast results of current mouse or touch position.
         static List<RaycastResult> GetEventSystemRaycastResults()

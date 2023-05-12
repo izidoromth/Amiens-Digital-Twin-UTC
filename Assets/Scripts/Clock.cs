@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Clock : MonoBehaviour
 {
-    float timeSpeed = 360.0f;
+    public float timeSpeed = 360.0f;
     int hoursPassed = 0;
     int lastTimepoint = 0;
     float timeFixed = 0;
