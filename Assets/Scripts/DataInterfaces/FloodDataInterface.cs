@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.Models;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -8,21 +9,6 @@ using Unity.VisualScripting;
 
 namespace Assets.Scripts
 {
-    public class FloodSector
-    {
-        public string Id { get; set; }
-        public byte[] Geometry { get; set; }
-    }
-
-    public class FloodData
-    {
-        public int Id { get; set; }
-        public int Time { get; set; }
-        public string SectorId { get; set; }
-        public float Height { get; set; }
-        public int Year { get; set; }
-
-    }
 
     public sealed class FloodDataInterface
     {
