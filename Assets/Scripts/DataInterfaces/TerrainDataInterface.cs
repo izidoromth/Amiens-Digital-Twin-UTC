@@ -31,19 +31,19 @@ namespace Assets.Scripts.DataInterfaces
 
         public void RetrieveTerrainData()
         {
-            DataTable terrainsTable = PSQLInterface.PGSQLExecuteSelectQuery(terrainsTableName);
+            //DataTable terrainsTable = PSQLInterface.PGSQLExecuteSelectQuery(terrainsTableName);
 
-            Terrains = new List<Terrain>();
+            //Terrains = new List<Terrain>();
 
-            foreach (DataRow terrain_row in terrainsTable.Rows)
-            {
-                Terrain newTerrain = new Terrain();
-                newTerrain.Id = (int)terrain_row.ItemArray[0];
-                newTerrain.Geometry = terrain_row.ItemArray[1] as byte[];
-                newTerrain.Name = (string)terrain_row.ItemArray[2];
+            //foreach (DataRow terrain_row in terrainsTable.Rows)
+            //{
+            //    Terrain newTerrain = new Terrain();
+            //    newTerrain.Id = (int)terrain_row.ItemArray[0];
+            //    newTerrain.Geometry = terrain_row.ItemArray[1] as byte[];
+            //    newTerrain.Name = (string)terrain_row.ItemArray[2];
 
-                Terrains.Add(newTerrain);
-            }
+            //    Terrains.Add(newTerrain);
+            //}
         }
     }
 }
