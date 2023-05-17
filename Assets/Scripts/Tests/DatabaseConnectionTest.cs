@@ -9,7 +9,7 @@ public class DatabaseConnectionTest : MonoBehaviour
     void Start()
     {
         DatabaseConnection.Repository repository = new DatabaseConnection.Repository("postgres", "postgres", "amiens_digital_twin");
-        Verificacao = repository.Sectors.First(x => x.SectorId == "KE10").SectorId;
+        Verificacao = repository.FloodSectors.First(x => x.SectorId == "KE10").SectorId;
     }
 
     // Update is called once per frame
