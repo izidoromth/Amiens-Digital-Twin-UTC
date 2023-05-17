@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DatabaseConnection;
 using DatabaseConnection.Entities;
+using DatabaseConnection.Context;
 using static TreeEditor.TextureAtlas;
 
 public class TwinManager : MonoBehaviour
@@ -16,29 +17,25 @@ public class TwinManager : MonoBehaviour
     List<GameObject> floodSectorGameObjects = new List<GameObject>();
     List<WaterFlood> aux = new List<WaterFlood>();
     Dictionary<int, List<WaterFlood>> floodsPerYear = new Dictionary<int, List<WaterFlood>>();
-    Repository repository;
-    public string Verificacao;
+    AmiensDigitalTwinDbContext context;
 
     void Start()
     {
-        repository = new Repository("postgres", "postgres", "amiens_digital_twin");
+        context = DbConnectionContext.GetContext<AmiensDigitalTwinDbContext>(
+            (options, defaultSchema) => { return new AmiensDigitalTwinDbContext(options, defaultSchema); },
+            "postgres", "postgres", "amiens_digital_twin");
 
         InstantiateFloodSectors();
-        Verificacao = "InstantiateFloodSectors";
         InstantiateBuildings();
-        Verificacao = "InstantiateBuildings";
         InstantiateTerrains();
-        Verificacao = "InstantiateTerrains";
 
         floodsPerYear = new Dictionary<int, List<WaterFlood>>();
-        foreach (var year in repository.WaterFloods.GroupBy(x => x.Year))
+        foreach (var year in context.WaterFloods.GroupBy(x => x.Year))
             if (year.Key.HasValue)
                 floodsPerYear.Add(year.Key.Value, year.OrderBy(x => x.Time).ToList());
-        Verificacao = "foreach";
 
         //// Flood tests
         InvokeRepeating("UpdateWaterLevel", 0, 0.0008f);
-        Verificacao = "InvokeRepeating";
     }
 
     // Update is called once per frame
@@ -48,7 +45,7 @@ public class TwinManager : MonoBehaviour
 
     void InstantiateFloodSectors()
     {
-        foreach(FloodSector sector in repository.FloodSectors.ToList())
+        foreach(FloodSector sector in context.FloodSectors.ToList())
         {
             GameObject sectorGameObject = LoadFromGeometry(sector.Geometry, sector.SectorId, "Texture.jpg");
 
@@ -58,7 +55,7 @@ public class TwinManager : MonoBehaviour
 
     void InstantiateBuildings()
     {
-        foreach (Building building in repository.Buildings.ToList())
+        foreach (Building building in context.Buildings.ToList())
         {
             LoadFromGeometry(building.Geometry, $"{building.Id}", "Buildings.jpg");
         }
@@ -66,7 +63,7 @@ public class TwinManager : MonoBehaviour
 
     void InstantiateTerrains()
     {
-        foreach (DatabaseConnection.Entities.Terrain terrain in repository.Terrains.ToList())
+        foreach (DatabaseConnection.Entities.Terrain terrain in context.Terrains.ToList())
         {
             LoadFromGeometry(terrain.Geometry, $"{terrain.Id}");
         }
