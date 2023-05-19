@@ -6,7 +6,8 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     bool rightButtonPressed = false;
-    bool leftButtonPressed = false;
+    bool leftButtonPressed = false; 
+    bool scrollPressed = false;
     float sensivity = 2.5f;
     float speed = 25.0f;
     Vector3 xzPlanTransformVector = new Vector3(1, 0, 1);
@@ -34,7 +35,26 @@ public class CameraController : MonoBehaviour
             rightButtonPressed = false;
         }
 
+        if (Input.GetMouseButtonDown(2))
+        {
+            scrollPressed = true;
+        }
+        else if (Input.GetMouseButtonUp(2))
+        {
+            scrollPressed = false;
+        }
+
+
         if (leftButtonPressed)
+        {
+            float mouseY = -Input.GetAxis("Mouse Y");
+            float mouseX = -Input.GetAxis("Mouse X");
+
+            transform.position += transform.right * mouseX * speed;
+            transform.position += Vector3.Scale(transform.forward, xzPlanTransformVector) * mouseY * speed;
+        }
+
+        if (rightButtonPressed)
         {
             float mouseY = Input.GetAxis("Mouse Y");
             float mouseX = Input.GetAxis("Mouse X");
@@ -45,13 +65,13 @@ public class CameraController : MonoBehaviour
                 transform.eulerAngles = new Vector3(0, transform.eulerAngles.y);
         }
 
-        if (rightButtonPressed)
+        if (scrollPressed)
         {
             float mouseY = -Input.GetAxis("Mouse Y");
             float mouseX = -Input.GetAxis("Mouse X");
 
+            transform.position += transform.up * mouseY * speed;
             transform.position += transform.right * mouseX * speed;
-            transform.position += Vector3.Scale(transform.forward, xzPlanTransformVector) * mouseY * speed;
         }
 
         transform.position += transform.forward * Input.mouseScrollDelta.y * speed;

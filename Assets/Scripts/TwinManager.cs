@@ -58,7 +58,14 @@ public class TwinManager : MonoBehaviour
     {
         foreach (Building building in BuildingsDataInterface.Instance.Buildings)
         {
-            LoadFromGeometry(building, "Buildings.jpg");
+            GameObject buildingGameObject =  LoadFromGeometry(building, "Buildings.jpg");
+
+            Outline outline = buildingGameObject.transform.GetChild(0).gameObject.AddComponent<Outline>();
+            outline.enabled = false;
+            outline.OutlineWidth = 8;
+
+            buildingGameObject.transform.GetChild(0).gameObject.AddComponent<OutlineUpdater>();
+            buildingGameObject.transform.GetChild(0).gameObject.AddComponent<MeshCollider>();
         }
     }
 
@@ -66,7 +73,7 @@ public class TwinManager : MonoBehaviour
     {
         foreach (Assets.Scripts.Models.Terrain terrain in TerrainDataInterface.Instance.Terrains)
         {
-            LoadFromGeometry(terrain);
+            LoadFromGeometry(terrain,"Terrain.png");
         }
     }
     GameObject LoadFromGeometry(CityObject city_object, string texture_name = "")
