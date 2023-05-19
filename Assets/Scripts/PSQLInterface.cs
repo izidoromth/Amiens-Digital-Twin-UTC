@@ -41,7 +41,7 @@ public class PSQLInterface
         DataSet ds = new DataSet();
         List<string> dataItems = new List<string>();
 
-        string sql = string.IsNullOrEmpty(condition) ? $"SELECT {columns} FROM {table}": $"SELECT {columns} FROM {table} WHERE condition";
+        string sql = string.IsNullOrEmpty(condition) ? $"SELECT {columns} FROM {table}": $"SELECT {columns} FROM {table} WHERE {condition}";
 
         NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, dbConnection);
         ds.Reset();

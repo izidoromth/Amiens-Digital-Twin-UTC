@@ -28,7 +28,6 @@ public class TwinManager : MonoBehaviour
         BuildingsDataInterface.Instance.RetrieveBuildingsData();
         TerrainDataInterface.Instance.RetrieveTerrainData();
 
-
         // Instantiate city objects
         InstantiateFloodSectors();
         InstantiateBuildings();
