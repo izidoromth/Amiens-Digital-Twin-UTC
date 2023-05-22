@@ -2,11 +2,14 @@ using Assets.Scripts;
 using Assets.Scripts.DataInterfaces;
 using Assets.Scripts.Models;
 using Dummiesman;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 using UnityEngine;
 using UnityEngine.UI;
 using static TreeEditor.TextureAtlas;
@@ -40,7 +43,6 @@ public class TwinManager : MonoBehaviour
         PSQLInterface.PGSQLCloseConnection();
     }
 
-    // Update is called once per frame
     void Update()
     {
         HandleInputs();
@@ -66,8 +68,11 @@ public class TwinManager : MonoBehaviour
             outline.enabled = false;
             outline.OutlineWidth = 8;
 
-            buildingGameObject.transform.GetChild(0).gameObject.AddComponent<HandleBuildingInfo>();
+            buildingGameObject.SetActive(false);
+            HandleBuildingInfo buildingInfoComponent =  buildingGameObject.transform.GetChild(0).gameObject.AddComponent<HandleBuildingInfo>();
+            buildingInfoComponent.BuildingInfo = building;
             buildingGameObject.transform.GetChild(0).gameObject.AddComponent<MeshCollider>();
+            buildingGameObject.SetActive(true);
         }
     }
 

@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class HandleBuildingInfo : MonoBehaviour
 {
+    public Building BuildingInfo;
     void Update()
     {
         TwinManager manager = GameObject.Find("TwinManager").GetComponent<TwinManager>();
@@ -16,7 +17,16 @@ public class HandleBuildingInfo : MonoBehaviour
             {
                 Destroy(GameObject.FindGameObjectWithTag("BuildingInfo"));
                 GameObject buildingInfo = Instantiate((GameObject)Resources.Load("Prefabs/BuildingInfo", typeof(GameObject)));
+                buildingInfo.SetActive(false);
                 buildingInfo.transform.SetParent(GameObject.Find("UI").transform, false);
+                SetBuildingInfo setBuildingInfoComponent = buildingInfo.GetComponent<SetBuildingInfo>();
+                setBuildingInfoComponent.Nature = BuildingInfo.Nature;
+                setBuildingInfoComponent.Usage = BuildingInfo.Usage1;
+                setBuildingInfoComponent.Logts = BuildingInfo.NbLogts as string;
+                setBuildingInfoComponent.Floors = BuildingInfo.NbFloors.ToString();
+                setBuildingInfoComponent.Height = BuildingInfo.Height.ToString();
+                setBuildingInfoComponent.ZMin = BuildingInfo.ZMinSol.ToString();
+                buildingInfo.SetActive(true);
                 manager.ActiveBuildingInfo = this;
             }
         }
