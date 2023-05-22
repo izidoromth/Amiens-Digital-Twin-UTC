@@ -16,6 +16,7 @@ public class TwinManager : MonoBehaviour
     List<GameObject> floodSectorGameObjects = new List<GameObject>();
     List<FloodData> aux = new List<FloodData>();
 
+    public Component ActiveBuildingInfo;
 
     void Start()
     {
@@ -42,6 +43,7 @@ public class TwinManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        HandleInputs();
     }
 
     void InstantiateFloodSectors()
@@ -64,7 +66,7 @@ public class TwinManager : MonoBehaviour
             outline.enabled = false;
             outline.OutlineWidth = 8;
 
-            buildingGameObject.transform.GetChild(0).gameObject.AddComponent<OutlineUpdater>();
+            buildingGameObject.transform.GetChild(0).gameObject.AddComponent<HandleBuildingInfo>();
             buildingGameObject.transform.GetChild(0).gameObject.AddComponent<MeshCollider>();
         }
     }
@@ -107,6 +109,15 @@ public class TwinManager : MonoBehaviour
             floodSector.transform.position = new Vector3(floodSector.transform.position.x, floodSectorData.Height, floodSector.transform.position.z);
             aux.Add(floodSectorData);
             FloodDataInterface.Instance.FloodsPerYear[9999].Remove(floodSectorData);
+        }
+    }
+
+    void HandleInputs()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Destroy(GameObject.FindGameObjectWithTag("BuildingInfo"));
+            ActiveBuildingInfo = null;
         }
     }
 }
