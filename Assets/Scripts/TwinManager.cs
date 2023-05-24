@@ -1,10 +1,13 @@
 using Assets.Scripts;
 using Dummiesman;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 using UnityEngine;
 using UnityEngine.UI;
 using DatabaseConnection;
@@ -19,6 +22,8 @@ public class TwinManager : MonoBehaviour
     Dictionary<int, List<WaterFlood>> floodsPerYear = new Dictionary<int, List<WaterFlood>>();
     AmiensDigitalTwinDbContext context;
 
+    public Component ActiveBuildingInfo;
+
     void Start()
     {
         context = DbConnectionContext.GetContext<AmiensDigitalTwinDbContext>(
@@ -30,17 +35,15 @@ public class TwinManager : MonoBehaviour
         InstantiateTerrains();
 
         floodsPerYear = new Dictionary<int, List<WaterFlood>>();
-        foreach (var year in context.WaterFloods.GroupBy(x => x.Year))
-            if (year.Key.HasValue)
-                floodsPerYear.Add(year.Key.Value, year.OrderBy(x => x.Time).ToList());
+        floodsPerYear.Add(9999, context.WaterFloods.Where(x => x.Year == 9999).OrderBy(x => x.Year).ToList());
 
         //// Flood tests
         InvokeRepeating("UpdateWaterLevel", 0, 0.0008f);
     }
 
-    // Update is called once per frame
     void Update()
     {
+        HandleInputs();
     }
 
     void InstantiateFloodSectors()
@@ -57,7 +60,17 @@ public class TwinManager : MonoBehaviour
     {
         foreach (Building building in context.Buildings.ToList())
         {
-            LoadFromGeometry(building.Geometry, $"{building.Id}", "Buildings.jpg");
+            GameObject buildingGameObject = LoadFromGeometry(building.Geometry, $"{building.Id}", "Buildings.jpg");
+
+            Outline outline = buildingGameObject.transform.GetChild(0).gameObject.AddComponent<Outline>();
+            outline.enabled = false;
+            outline.OutlineWidth = 8;
+
+            buildingGameObject.SetActive(false);
+            HandleBuildingInfo buildingInfoComponent =  buildingGameObject.transform.GetChild(0).gameObject.AddComponent<HandleBuildingInfo>();
+            buildingInfoComponent.BuildingInfo = building;
+            buildingGameObject.transform.GetChild(0).gameObject.AddComponent<MeshCollider>();
+            buildingGameObject.SetActive(true);
         }
     }
 
@@ -100,6 +113,15 @@ public class TwinManager : MonoBehaviour
             floodSector.transform.position = new Vector3(floodSector.transform.position.x, floodSectorData.Level.Value, floodSector.transform.position.z);
             aux.Add(floodSectorData);
             floodsPerYear[9999].Remove(floodSectorData);
+        }
+    }
+
+    void HandleInputs()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Destroy(GameObject.FindGameObjectWithTag("BuildingInfo"));
+            ActiveBuildingInfo = null;
         }
     }
 }
