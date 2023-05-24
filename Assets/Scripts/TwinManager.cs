@@ -52,9 +52,14 @@ public class TwinManager : MonoBehaviour
     {
         foreach(FloodSector sector in FloodDataInterface.Instance.FloodSectors)
         {
-            GameObject sectorGameObject = LoadFromGeometry(sector, "Texture.jpg");
+            GameObject floodSectorGameObject = LoadFromGeometry(sector, "Texture.jpg");
 
-            floodSectorGameObjects.Add(sectorGameObject);
+            floodSectorGameObjects.Add(floodSectorGameObject);
+
+            floodSectorGameObject.SetActive(false);
+            GameObject floodSector = floodSectorGameObject.transform.GetChild(0).gameObject;
+            floodSector.AddComponent<MeshCollider>();
+            floodSectorGameObject.SetActive(true);
         }
     }
 
@@ -71,8 +76,14 @@ public class TwinManager : MonoBehaviour
             buildingGameObject.SetActive(false);
             HandleBuildingInfo buildingInfoComponent =  buildingGameObject.transform.GetChild(0).gameObject.AddComponent<HandleBuildingInfo>();
             buildingInfoComponent.BuildingInfo = building;
-            buildingGameObject.transform.GetChild(0).gameObject.AddComponent<MeshCollider>();
+            MeshCollider buildingMeshCollider = buildingGameObject.transform.GetChild(0).gameObject.AddComponent<MeshCollider>();
+            Rigidbody buildingRigidbody = buildingGameObject.transform.GetChild(0).gameObject.AddComponent<Rigidbody>();
+            buildingRigidbody.useGravity = false;
+            buildingRigidbody.isKinematic = true;
             buildingGameObject.SetActive(true);
+
+            buildingMeshCollider.convex = true;
+            buildingMeshCollider.isTrigger = true;
         }
     }
 
@@ -111,7 +122,8 @@ public class TwinManager : MonoBehaviour
                 FloodDataInterface.Instance.FloodsPerYear[9999] = aux;
                 return;
             }
-            floodSector.transform.position = new Vector3(floodSector.transform.position.x, floodSectorData.Height, floodSector.transform.position.z);
+            Transform floodSectorTransform = floodSector.transform.GetChild(0).transform;
+            floodSectorTransform.position = new Vector3(floodSectorTransform.position.x, floodSectorData.Height, floodSectorTransform.position.z);
             aux.Add(floodSectorData);
             FloodDataInterface.Instance.FloodsPerYear[9999].Remove(floodSectorData);
         }

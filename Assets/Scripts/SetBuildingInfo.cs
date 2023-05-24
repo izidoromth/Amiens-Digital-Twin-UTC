@@ -11,6 +11,7 @@ public class SetBuildingInfo : MonoBehaviour
     public TextMeshProUGUI FloorsLabel;
     public TextMeshProUGUI HeightLabel;
     public TextMeshProUGUI ZMinLabel;
+    public TextMeshProUGUI FloodHeightLabel;
 
     public string Nature;
     public string Usage;
@@ -18,13 +19,19 @@ public class SetBuildingInfo : MonoBehaviour
     public string Floors;
     public string Height;
     public string ZMin;
+    public string FloodHeight;
     void Start()
     {
         NatureLabel.text = $"Nature: {Nature}";
         UsageLabel.text = $"Usage: {Usage}";
-        LogtsLabel.text = $"N Logts: {Logts}";
-        FloorsLabel.text = $"N Etages: {Floors}";
-        HeightLabel.text = $"Halteur: {Height}m";
-        ZMinLabel.text = $"Halteur min: {ZMin}m";
+        LogtsLabel.text = $"N° Logements: {Logts}";
+        FloorsLabel.text = $"N° Etages: {Floors}";
+        HeightLabel.text = $"Hauteur: {Height}m";
+        ZMinLabel.text = $"Hauteur au sol: {ZMin}m";
+    }
+
+    void Update()
+    {
+        FloodHeightLabel.text = $"Hauteur d'inondation: {FloodHeight}m";
     }
 }
