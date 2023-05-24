@@ -5,16 +5,16 @@ using DatabaseConnection;
 using DatabaseConnection.Entities;
 using DatabaseConnection.Context;
 using UnityEngine;
+using APIRequest;
 
 public class DatabaseConnectionTest : MonoBehaviour
 {
-    public string Verificacao;
+    public bool Verificacao;
     void Start()
     {
-        var context = DbConnectionContext.GetContext<AmiensDigitalTwinDbContext>(
-            (options, defaultSchema) => { return new AmiensDigitalTwinDbContext(options, defaultSchema); },
-            "postgres", "postgres", "amiens_digital_twin");
-        Verificacao = $"{context.Terrains.First(x => x.Name == "amiens").Id}";
+        IRepository repo = new APIRequestRepository();
+        IRepository repo2 = new LocalRepository();
+        Verificacao = repo.GetBuildings().Count == repo2.GetBuildings().Count;
     }
 
     // Update is called once per frame
