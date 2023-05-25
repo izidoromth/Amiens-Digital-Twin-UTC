@@ -14,35 +14,40 @@ using DatabaseConnection;
 using DatabaseConnection.Entities;
 using DatabaseConnection.Context;
 using static TreeEditor.TextureAtlas;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Globalization;
 
 public class TwinManager : MonoBehaviour
 {
     List<GameObject> floodSectorGameObjects = new List<GameObject>();
     List<WaterFlood> aux = new List<WaterFlood>();
-    Dictionary<int, List<WaterFlood>> floodsPerYear = new Dictionary<int, List<WaterFlood>>();
+    public Dictionary<int, List<WaterFlood>> floodsPerYear = new Dictionary<int, List<WaterFlood>>();
     AmiensDigitalTwinDbContext context;
 
     public Component ActiveBuildingInfo;
 
     void Start()
     {
+        // Connect to the database
         context = DbConnectionContext.GetContext<AmiensDigitalTwinDbContext>(
             (options, defaultSchema) => { return new AmiensDigitalTwinDbContext(options, defaultSchema); },
-            "postgres", "postgres", "amiens_digital_twin");
+            "postgres", "12345678", "amiens_digital_twin", port: "5433");
 
+        floodsPerYear = new Dictionary<int, List<WaterFlood>>();
+        floodsPerYear.Add(9999, context.WaterFloods.Where(x => x.Year == 9999).OrderBy(x => x.Time).ToList());
+
+        // Instantiate city objects
         InstantiateFloodSectors();
         InstantiateBuildings();
         InstantiateTerrains();
 
-        floodsPerYear = new Dictionary<int, List<WaterFlood>>();
-        floodsPerYear.Add(9999, context.WaterFloods.Where(x => x.Year == 9999).OrderBy(x => x.Year).ToList());
-
-        //// Flood tests
-        InvokeRepeating("UpdateWaterLevel", 0, 0.0008f);
+        // Flood tests
+        InvokeRepeating("UpdateWaterLevel", 0, 0.02f);
     }
 
     void Update()
     {
+        Debug.Log(Time.fixedDeltaTime);
         HandleInputs();
     }
 
@@ -50,9 +55,14 @@ public class TwinManager : MonoBehaviour
     {
         foreach(FloodSector sector in context.FloodSectors.ToList())
         {
-            GameObject sectorGameObject = LoadFromGeometry(sector.Geometry, sector.SectorId, "Texture.jpg");
+            GameObject floodSectorGameObject = LoadFromGeometry(sector.Geometry, sector.SectorId, "Texture.jpg");
 
-            floodSectorGameObjects.Add(sectorGameObject);
+            floodSectorGameObjects.Add(floodSectorGameObject);
+
+            floodSectorGameObject.SetActive(false);
+            GameObject floodSector = floodSectorGameObject.transform.GetChild(0).gameObject;
+            floodSector.AddComponent<MeshCollider>();
+            floodSectorGameObject.SetActive(true);
         }
     }
 
@@ -60,7 +70,7 @@ public class TwinManager : MonoBehaviour
     {
         foreach (Building building in context.Buildings.ToList())
         {
-            GameObject buildingGameObject = LoadFromGeometry(building.Geometry, $"{building.Id}", "Buildings.jpg");
+            GameObject buildingGameObject =  LoadFromGeometry(building.Geometry, building.Id, "Buildings.jpg");
 
             Outline outline = buildingGameObject.transform.GetChild(0).gameObject.AddComponent<Outline>();
             outline.enabled = false;
@@ -69,8 +79,14 @@ public class TwinManager : MonoBehaviour
             buildingGameObject.SetActive(false);
             HandleBuildingInfo buildingInfoComponent =  buildingGameObject.transform.GetChild(0).gameObject.AddComponent<HandleBuildingInfo>();
             buildingInfoComponent.BuildingInfo = building;
-            buildingGameObject.transform.GetChild(0).gameObject.AddComponent<MeshCollider>();
+            MeshCollider buildingMeshCollider = buildingGameObject.transform.GetChild(0).gameObject.AddComponent<MeshCollider>();
+            Rigidbody buildingRigidbody = buildingGameObject.transform.GetChild(0).gameObject.AddComponent<Rigidbody>();
+            buildingRigidbody.useGravity = false;
+            buildingRigidbody.isKinematic = true;
             buildingGameObject.SetActive(true);
+
+            buildingMeshCollider.convex = true;
+            buildingMeshCollider.isTrigger = true;
         }
     }
 
@@ -78,15 +94,14 @@ public class TwinManager : MonoBehaviour
     {
         foreach (DatabaseConnection.Entities.Terrain terrain in context.Terrains.ToList())
         {
-            LoadFromGeometry(terrain.Geometry, $"{terrain.Id}");
+            LoadFromGeometry(terrain.Geometry, terrain.Id.ToString(),"Terrain.png");
         }
     }
-
     GameObject LoadFromGeometry(byte[] geometry, string id, string texture_name = "")
     {
         MemoryStream stream = new MemoryStream(geometry);
         GameObject gameObject = new OBJLoader().Load(stream);
-        gameObject.name = id as string;
+        gameObject.name = id;
 
         if (string.IsNullOrEmpty(texture_name))
             return gameObject;
@@ -102,15 +117,16 @@ public class TwinManager : MonoBehaviour
 
     void UpdateWaterLevel()
     {
-        foreach (GameObject floodSector in floodSectorGameObjects)
+        foreach(GameObject floodSector in floodSectorGameObjects)
         {
             var floodSectorData = floodsPerYear[9999].FirstOrDefault(f => f.SectorId.Equals(floodSector.name));
-            if (floodSectorData == null)
+            if(floodSectorData == null)
             {
                 floodsPerYear[9999] = aux;
                 return;
             }
-            floodSector.transform.position = new Vector3(floodSector.transform.position.x, floodSectorData.Level.Value, floodSector.transform.position.z);
+            Transform floodSectorTransform = floodSector.transform.GetChild(0).transform;
+            floodSectorTransform.position = new Vector3(floodSectorTransform.position.x, floodSectorData.Level.Value, floodSectorTransform.position.z);
             aux.Add(floodSectorData);
             floodsPerYear[9999].Remove(floodSectorData);
         }
