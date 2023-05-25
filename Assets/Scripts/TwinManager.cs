@@ -16,6 +16,7 @@ using DatabaseConnection.Context;
 using static TreeEditor.TextureAtlas;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Globalization;
+using static System.Net.Mime.MediaTypeNames;
 
 public class TwinManager : MonoBehaviour
 {
@@ -54,13 +55,25 @@ public class TwinManager : MonoBehaviour
     {
         foreach(FloodSector sector in context.FloodSectors.ToList())
         {
-            GameObject floodSectorGameObject = LoadFromGeometry(sector.Geometry, sector.SectorId, "Texture.jpg");
+            GameObject floodSectorGameObject = LoadFromGeometry(sector.Geometry, sector.SectorId);
 
             floodSectorGameObjects.Add(floodSectorGameObject);
-
             floodSectorGameObject.SetActive(false);
+
+            // add mesh collider to detect flood
             GameObject floodSector = floodSectorGameObject.transform.GetChild(0).gameObject;
             floodSector.AddComponent<MeshCollider>();
+
+            // change material to make it transparent
+            Material objectMaterial = new Material(Shader.Find("Standard"));
+            objectMaterial.SetColor("_Color", new Color(.08f, .26f, .57f, .4f));
+            objectMaterial.SetFloat("_Mode", 3);
+            objectMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            objectMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            objectMaterial.EnableKeyword("_ALPHABLEND_ON");
+            objectMaterial.renderQueue = 3000;
+            floodSectorGameObject.transform.GetChild(0).gameObject.GetComponent<MeshRenderer>().material = objectMaterial;
+
             floodSectorGameObject.SetActive(true);
         }
     }
