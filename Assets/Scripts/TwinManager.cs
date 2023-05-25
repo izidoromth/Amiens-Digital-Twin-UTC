@@ -1,6 +1,4 @@
 using Assets.Scripts;
-using Assets.Scripts.DataInterfaces;
-using Assets.Scripts.Models;
 using Dummiesman;
 using System;
 using System.Collections;
@@ -12,25 +10,31 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 using UnityEngine;
 using UnityEngine.UI;
+using DatabaseConnection;
+using DatabaseConnection.Entities;
+using DatabaseConnection.Context;
 using static TreeEditor.TextureAtlas;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Globalization;
 
 public class TwinManager : MonoBehaviour
 {
     List<GameObject> floodSectorGameObjects = new List<GameObject>();
-    List<FloodData> aux = new List<FloodData>();
+    List<WaterFlood> aux = new List<WaterFlood>();
+    public Dictionary<int, List<WaterFlood>> floodsPerYear = new Dictionary<int, List<WaterFlood>>();
+    AmiensDigitalTwinDbContext context;
 
     public Component ActiveBuildingInfo;
 
     void Start()
     {
         // Connect to the database
-        PSQLInterface.PSQLConnect("127.0.0.1", "5433", "amiens_digital_twin", "postgres", "12345678");
+        context = DbConnectionContext.GetContext<AmiensDigitalTwinDbContext>(
+            (options, defaultSchema) => { return new AmiensDigitalTwinDbContext(options, defaultSchema); },
+            "postgres", "12345678", "amiens_digital_twin", port: "5433");
 
-        // Retrieve city objects
-        FloodDataInterface.Instance.RetrieveFloodSectorsData();
-        FloodDataInterface.Instance.RetrieveFloodData();
-        BuildingsDataInterface.Instance.RetrieveBuildingsData();
-        TerrainDataInterface.Instance.RetrieveTerrainData();
+        floodsPerYear = new Dictionary<int, List<WaterFlood>>();
+        floodsPerYear.Add(9999, context.WaterFloods.Where(x => x.Year == 9999).OrderBy(x => x.Time).ToList());
 
         // Instantiate city objects
         InstantiateFloodSectors();
@@ -38,9 +42,7 @@ public class TwinManager : MonoBehaviour
         InstantiateTerrains();
 
         // Flood tests
-        InvokeRepeating("UpdateWaterLevel", 0, 0.0008f);
-
-        PSQLInterface.PGSQLCloseConnection();
+        InvokeRepeating("UpdateWaterLevel", 0, 0.02f);
     }
 
     void Update()
@@ -50,9 +52,9 @@ public class TwinManager : MonoBehaviour
 
     void InstantiateFloodSectors()
     {
-        foreach(FloodSector sector in FloodDataInterface.Instance.FloodSectors)
+        foreach(FloodSector sector in context.FloodSectors.ToList())
         {
-            GameObject floodSectorGameObject = LoadFromGeometry(sector, "Texture.jpg");
+            GameObject floodSectorGameObject = LoadFromGeometry(sector.Geometry, sector.SectorId, "Texture.jpg");
 
             floodSectorGameObjects.Add(floodSectorGameObject);
 
@@ -65,9 +67,9 @@ public class TwinManager : MonoBehaviour
 
     void InstantiateBuildings()
     {
-        foreach (Building building in BuildingsDataInterface.Instance.Buildings)
+        foreach (Building building in context.Buildings.ToList())
         {
-            GameObject buildingGameObject =  LoadFromGeometry(building, "Buildings.jpg");
+            GameObject buildingGameObject =  LoadFromGeometry(building.Geometry, building.Id, "Buildings.jpg");
 
             Outline outline = buildingGameObject.transform.GetChild(0).gameObject.AddComponent<Outline>();
             outline.enabled = false;
@@ -89,16 +91,17 @@ public class TwinManager : MonoBehaviour
 
     void InstantiateTerrains()
     {
-        foreach (Assets.Scripts.Models.Terrain terrain in TerrainDataInterface.Instance.Terrains)
+        foreach (DatabaseConnection.Entities.Terrain terrain in context.Terrains.ToList())
         {
-            LoadFromGeometry(terrain,"Terrain.png");
+            LoadFromGeometry(terrain.Geometry, terrain.Id.ToString(),"Terrain.png");
         }
     }
-    GameObject LoadFromGeometry(CityObject city_object, string texture_name = "")
+    
+    GameObject LoadFromGeometry(byte[] geometry, string id, string texture_name = "")
     {
-        MemoryStream stream = new MemoryStream(city_object.Geometry);
+        MemoryStream stream = new MemoryStream(geometry);
         GameObject gameObject = new OBJLoader().Load(stream);
-        gameObject.name = city_object.Id as string;
+        gameObject.name = id;
 
         if (string.IsNullOrEmpty(texture_name))
             return gameObject;
@@ -116,16 +119,16 @@ public class TwinManager : MonoBehaviour
     {
         foreach(GameObject floodSector in floodSectorGameObjects)
         {
-            var floodSectorData = FloodDataInterface.Instance.FloodsPerYear[9999].FirstOrDefault(f => f.SectorId.Equals(floodSector.name));
+            var floodSectorData = floodsPerYear[9999].FirstOrDefault(f => f.SectorId.Equals(floodSector.name));
             if(floodSectorData == null)
             {
-                FloodDataInterface.Instance.FloodsPerYear[9999] = aux;
+                floodsPerYear[9999] = aux;
                 return;
             }
             Transform floodSectorTransform = floodSector.transform.GetChild(0).transform;
-            floodSectorTransform.position = new Vector3(floodSectorTransform.position.x, floodSectorData.Height, floodSectorTransform.position.z);
+            floodSectorTransform.position = new Vector3(floodSectorTransform.position.x, floodSectorData.Level.Value, floodSectorTransform.position.z);
             aux.Add(floodSectorData);
-            FloodDataInterface.Instance.FloodsPerYear[9999].Remove(floodSectorData);
+            floodsPerYear[9999].Remove(floodSectorData);
         }
     }
 

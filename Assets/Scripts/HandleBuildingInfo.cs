@@ -1,5 +1,5 @@
 using Assets.Scripts;
-using Assets.Scripts.Models;
+using DatabaseConnection.Entities;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,6 @@ public class HandleBuildingInfo : MonoBehaviour
     bool flooding;
     string floodSectorName;
     SetBuildingInfo setBuildingInfoComponent;
-
     public Building BuildingInfo;
     void Update()
     {
@@ -32,8 +31,8 @@ public class HandleBuildingInfo : MonoBehaviour
                 setBuildingInfoComponent.Nature = BuildingInfo.Nature;
                 setBuildingInfoComponent.Usage = BuildingInfo.Usage1;
                 setBuildingInfoComponent.Logts = BuildingInfo.NbLogts as string;
-                setBuildingInfoComponent.Floors = BuildingInfo.NbFloors.ToString();
-                setBuildingInfoComponent.Height = BuildingInfo.Height.ToString();
+                setBuildingInfoComponent.Floors = BuildingInfo.NbEtages.ToString();
+                setBuildingInfoComponent.Height = BuildingInfo.Hauter.ToString();
                 setBuildingInfoComponent.ZMin = BuildingInfo.ZMinSol.ToString();
                 setBuildingInfoComponent.FloodHeight = "0";
                     buildingInfo.SetActive(true);
@@ -45,14 +44,12 @@ public class HandleBuildingInfo : MonoBehaviour
             GetComponent<Outline>().enabled = false;
         }
 
-        if (flooding && setBuildingInfoComponent is not null && FloodDataInterface.Instance.FloodsPerYear[9999].FirstOrDefault(f => f.SectorId.Equals(floodSectorName)) is not null)
+        if (flooding && setBuildingInfoComponent is not null && manager.floodsPerYear[9999].FirstOrDefault(f => f.SectorId.Equals(floodSectorName)) is not null)
         {
-            float floodHeight = FloodDataInterface.Instance.FloodsPerYear[9999].FirstOrDefault(f => f.SectorId.Equals(floodSectorName)).Height - (float)BuildingInfo.ZMinSol;
+            float floodHeight = manager.floodsPerYear[9999].FirstOrDefault(f => f.SectorId.Equals(floodSectorName)).Level.Value - (float)BuildingInfo.ZMinSol;
             floodHeight = floodHeight < 0 ? 0 : floodHeight;
             setBuildingInfoComponent.FloodHeight = floodHeight.ToString("0.00");
         }
-
-
     }
 
     bool MouseoverObject()
