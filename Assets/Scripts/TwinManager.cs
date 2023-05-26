@@ -22,9 +22,10 @@ public class TwinManager : MonoBehaviour
 {
     List<GameObject> floodSectorGameObjects = new List<GameObject>();
     List<WaterFlood> aux = new List<WaterFlood>();
-    public Dictionary<int, List<WaterFlood>> floodsPerYear = new Dictionary<int, List<WaterFlood>>();
     AmiensDigitalTwinDbContext context;
+    Dictionary<int, List<WaterFlood>> floodsPerYear = new Dictionary<int, List<WaterFlood>>();
 
+    public List<WaterFlood> SelectedFlood;
     public Component ActiveBuildingInfo;
 
     void Start()
@@ -34,16 +35,13 @@ public class TwinManager : MonoBehaviour
             (options, defaultSchema) => { return new AmiensDigitalTwinDbContext(options, defaultSchema); },
             "postgres", "12345678", "amiens_digital_twin", port: "5433");
 
-        floodsPerYear = new Dictionary<int, List<WaterFlood>>();
-        floodsPerYear.Add(9999, context.WaterFloods.Where(x => x.Year == 9999).OrderBy(x => x.Time).ToList());
+        floodsPerYear.Add(1994, context.WaterFloods.Where(f => f.Year == 1994).OrderBy(f => f.Time).ToList());
+        floodsPerYear.Add(9999, context.WaterFloods.Where(f => f.Year == 1994).OrderBy(f => f.Time).ToList());
 
         // Instantiate city objects
         InstantiateFloodSectors();
         InstantiateBuildings();
         InstantiateTerrains();
-
-        // Flood tests
-        InvokeRepeating("UpdateWaterLevel", 0, 0.02f);
     }
 
     void Update()
@@ -128,20 +126,30 @@ public class TwinManager : MonoBehaviour
         return gameObject;
     }
 
+    public void SelectFlood(int year)
+    {
+        SelectedFlood = floodsPerYear[year];
+    }
+
+    public void PlaySimulation(int speed)
+    {
+        InvokeRepeating("UpdateWaterLevel", 0, 0.02f / speed);
+    }
+
     void UpdateWaterLevel()
     {
         foreach(GameObject floodSector in floodSectorGameObjects)
         {
-            var floodSectorData = floodsPerYear[9999].FirstOrDefault(f => f.SectorId.Equals(floodSector.name));
+            var floodSectorData = SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSector.name));
             if(floodSectorData == null)
             {
-                floodsPerYear[9999] = aux;
+                SelectedFlood = aux;
                 return;
             }
             Transform floodSectorTransform = floodSector.transform.GetChild(0).transform;
             floodSectorTransform.position = new Vector3(floodSectorTransform.position.x, floodSectorData.Level.Value, floodSectorTransform.position.z);
             aux.Add(floodSectorData);
-            floodsPerYear[9999].Remove(floodSectorData);
+            SelectedFlood.Remove(floodSectorData);
         }
     }
 

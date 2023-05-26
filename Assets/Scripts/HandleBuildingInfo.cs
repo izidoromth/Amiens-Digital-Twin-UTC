@@ -30,12 +30,12 @@ public class HandleBuildingInfo : MonoBehaviour
                 setBuildingInfoComponent = buildingInfo.GetComponent<SetBuildingInfo>();
                 setBuildingInfoComponent.Nature = BuildingInfo.Nature;
                 setBuildingInfoComponent.Usage = BuildingInfo.Usage1;
-                setBuildingInfoComponent.Logts = BuildingInfo.NbLogts as string;
+                setBuildingInfoComponent.Logts = BuildingInfo.NbLogts;
                 setBuildingInfoComponent.Floors = BuildingInfo.NbEtages.ToString();
                 setBuildingInfoComponent.Height = BuildingInfo.Hauter.ToString();
                 setBuildingInfoComponent.ZMin = BuildingInfo.ZMinSol.ToString();
                 setBuildingInfoComponent.FloodHeight = "0";
-                    buildingInfo.SetActive(true);
+                buildingInfo.SetActive(true);
                 manager.ActiveBuildingInfo = this;
             }
         }
@@ -44,9 +44,9 @@ public class HandleBuildingInfo : MonoBehaviour
             GetComponent<Outline>().enabled = false;
         }
 
-        if (flooding && setBuildingInfoComponent is not null && manager.floodsPerYear[9999].FirstOrDefault(f => f.SectorId.Equals(floodSectorName)) is not null)
+        if (flooding && setBuildingInfoComponent is not null && manager.SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSectorName)) is not null)
         {
-            float floodHeight = manager.floodsPerYear[9999].FirstOrDefault(f => f.SectorId.Equals(floodSectorName)).Level.Value - (float)BuildingInfo.ZMinSol;
+            float floodHeight = manager.SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSectorName)).Level.Value - (float)BuildingInfo.ZMinSol;
             floodHeight = floodHeight < 0 ? 0 : floodHeight;
             setBuildingInfoComponent.FloodHeight = floodHeight.ToString("0.00");
         }
