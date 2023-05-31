@@ -24,9 +24,82 @@ public class TwinManager : MonoBehaviour
     List<WaterFlood> aux = new List<WaterFlood>();
     AmiensDigitalTwinDbContext context;
     Dictionary<int, List<WaterFlood>> floodsPerYear = new Dictionary<int, List<WaterFlood>>();
+    bool pumping;
+
+    Dictionary<string, float> fondCasier = new Dictionary<string, float>()
+    {
+        { "KE02", 23.6f },
+        { "KE03", 22.1f },
+        { "KE06", 23.7f },
+        { "KE07", 22.8f },
+        { "KE08", 21.9f },
+        { "KE10", 24.6f },
+        { "KE11", 21.9f },
+        { "KE12", 21.9f },
+        { "KE14", 22.3f },
+        { "KF00", 25.7f },
+        { "KF01", 24.9f },
+        { "KF02", 24.9f },
+        { "KF03", 23.3f }
+    };
+
+    Dictionary<string, float> areaCasier = new Dictionary<string, float>()
+    {
+        { "KE02", 150830.717f },
+        { "KE03", 215175.711f },
+        { "KE06", 143133.145f },
+        { "KE07", 120782.798f },
+        { "KE08", 246189.225f },
+        { "KE10", 84430.545f },
+        { "KE11", 78968.871f },
+        { "KE12", 131205.816f },
+        { "KE14", 55542.03f },
+        { "KF00", 72302.153f },
+        { "KF01", 10845.615f },
+        { "KF02", 32622.003f },
+        { "KF03", 68127.322f }
+    };
+
+    Dictionary<string, float> totalHeightPumpedCasier = new Dictionary<string, float>()
+    {
+        { "KE02", 0f },
+        { "KE03", 0f },
+        { "KE06", 0f },
+        { "KE07", 0f },
+        { "KE08", 0f },
+        { "KE10", 0f },
+        { "KE11", 0f },
+        { "KE12", 0f },
+        { "KE14", 0f },
+        { "KF00", 0f },
+        { "KF01", 0f },
+        { "KF02", 0f },
+        { "KF03", 0f }
+    };
+
+    Dictionary<string, float> lastHeightCasier = new Dictionary<string, float>()
+    {
+        { "KE02", 0f },
+        { "KE03", 0f },
+        { "KE06", 0f },
+        { "KE07", 0f },
+        { "KE08", 0f },
+        { "KE10", 0f },
+        { "KE11", 0f },
+        { "KE12", 0f },
+        { "KE14", 0f },
+        { "KF00", 0f },
+        { "KF01", 0f },
+        { "KF02", 0f },
+        { "KF03", 0f }
+    };
 
     public List<WaterFlood> SelectedFlood;
     public Component ActiveBuildingInfo;
+    public bool Playing { get; set; }
+    public bool PumpsEnabled { get; set; }
+    public float FloodMaxThreshold { get; set; }
+    public float FloodMinThreshold { get; set; }
 
     void Start()
     {
@@ -133,12 +206,16 @@ public class TwinManager : MonoBehaviour
 
     public void PlaySimulation(int speed)
     {
-        InvokeRepeating("UpdateWaterLevel", 0, 0.02f / speed);
+        InvokeRepeating(nameof(UpdateWaterLevel), 0, 0.02f / speed);
     }
 
+    public void StopSimulation()
+    {
+        CancelInvoke(nameof(UpdateWaterLevel));
+    }
     void UpdateWaterLevel()
     {
-        foreach(GameObject floodSector in floodSectorGameObjects)
+        foreach (GameObject floodSector in floodSectorGameObjects)
         {
             var floodSectorData = SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSector.name));
             if(floodSectorData == null)
@@ -146,8 +223,23 @@ public class TwinManager : MonoBehaviour
                 SelectedFlood = aux;
                 return;
             }
+            float newHeight = floodSectorData.Level.Value;
+            if (PumpsEnabled)
+            {
+                if (newHeight - lastHeightCasier[floodSector.name] > 0 && newHeight >= FloodMaxThreshold)
+                    pumping = true;
+                else if (newHeight - lastHeightCasier[floodSector.name] < 0 && newHeight <= FloodMinThreshold)
+                    pumping = false;
+
+                if (pumping)
+                {
+                    totalHeightPumpedCasier[floodSector.name] = totalHeightPumpedCasier[floodSector.name] + 200 * 2 / areaCasier[floodSector.name];
+                    newHeight -= totalHeightPumpedCasier[floodSector.name];
+                    lastHeightCasier[floodSector.name] = newHeight;
+                }
+            }
             Transform floodSectorTransform = floodSector.transform.GetChild(0).transform;
-            floodSectorTransform.position = new Vector3(floodSectorTransform.position.x, floodSectorData.Level.Value, floodSectorTransform.position.z);
+            floodSectorTransform.position = new Vector3(floodSectorTransform.position.x, newHeight, floodSectorTransform.position.z);
             aux.Add(floodSectorData);
             SelectedFlood.Remove(floodSectorData);
         }
