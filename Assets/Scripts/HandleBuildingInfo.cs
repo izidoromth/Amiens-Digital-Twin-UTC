@@ -46,8 +46,8 @@ public class HandleBuildingInfo : MonoBehaviour
 
         if (flooding && setBuildingInfoComponent is not null && manager.SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSectorName)) is not null)
         {
-            float floodHeight = manager.SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSectorName)).Level.Value - (float)BuildingInfo.ZMinSol;
-            floodHeight = floodHeight < 0 ? 0 : floodHeight;
+            float minY = GetComponent<MeshFilter>().mesh.vertices.OrderBy(v => v.y).FirstOrDefault().y;
+            float floodHeight = manager.SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSectorName)).Level.Value - minY;
             setBuildingInfoComponent.FloodHeight = floodHeight.ToString("0.00");
         }
     }
@@ -67,5 +67,7 @@ public class HandleBuildingInfo : MonoBehaviour
     void OnTriggerExit(Collider other)
     {
         flooding = false;
+        if(setBuildingInfoComponent is not null)
+            setBuildingInfoComponent.FloodHeight = "0";
     }
 }
