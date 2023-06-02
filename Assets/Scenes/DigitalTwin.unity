@@ -6265,6 +6265,8 @@ MonoBehaviour:
   Speed10x: {fileID: 539329680}
   FloodRangeMin: {fileID: 923562379}
   FloodRangeMax: {fileID: 712705617}
+  WaterLevelLineChart: {fileID: 6738331787915355645, guid: 8c05035cdbde1754aa6d280df423590e, type: 3}
+  LineChart: {fileID: 0}
 --- !u!1 &1916491237
 GameObject:
   m_ObjectHideFlags: 0

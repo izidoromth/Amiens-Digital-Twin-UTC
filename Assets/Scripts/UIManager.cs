@@ -1,9 +1,11 @@
 using Assets.Scripts;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using XCharts.Runtime;
 
 public class UIManager : MonoBehaviour
 {
@@ -23,6 +25,9 @@ public class UIManager : MonoBehaviour
 
     TwinManager manager;
     int selectedSpeed;
+
+    public GameObject WaterLevelLineChart;
+    public LineChart LineChart;
     private void Start()
     {
         OpenCloseParameters.onClick.AddListener(delegate () { OpenCloseParametersClicked(); });
@@ -41,9 +46,34 @@ public class UIManager : MonoBehaviour
         manager = GameObject.Find("TwinManager").GetComponent<TwinManager>();
     }
 
+    void CreateWaterLevelLineChart()
+    {
+        WaterLevelLineChart = new GameObject("WaterLevelLineChart");
+
+        // init line chart
+        LineChart = WaterLevelLineChart.AddComponent<LineChart>();
+        LineChart.Init();
+        LineChart.RemoveAllSerie();
+        LineChart.AddSerie<Line>();
+
+        LineChart.GetChartComponent<Title>().text = "Average Water Level (m)";
+        LineChart.GetChartComponent<GridCoord>().left = .2f;
+        LineChart.GetChartComponent<XAxis>().type = Axis.AxisType.Value;
+        LineChart.GetChartComponent<XAxis>().minMaxType = Axis.AxisMinMaxType.MinMax;
+        LineChart.GetChartComponent<YAxis>().type = Axis.AxisType.Value;
+        LineChart.GetChartComponent<YAxis>().minMaxType = Axis.AxisMinMaxType.MinMax;
+
+        // adjust size and position
+        WaterLevelLineChart.transform.SetParent(GameObject.Find("UI").transform, false);
+        RectTransform transform = WaterLevelLineChart.GetComponent<RectTransform>();
+        transform.localPosition = new Vector2(715, 375);
+        transform.sizeDelta = new Vector2(400, 250);
+
+        Instantiate(WaterLevelLineChart);
+    }
+
     void Update()
     {
-
     }
 
     void OpenCloseParametersClicked()
@@ -121,12 +151,14 @@ public class UIManager : MonoBehaviour
         {       
             manager.PlaySimulation(selectedSpeed);
             manager.PumpFlow = PumpSlider.value;
+            CreateWaterLevelLineChart();
             OpenCloseParametersClicked();
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Finir la simulation";
         }
         else if (manager.Playing)
         {
             manager.StopSimulation();
+            Destroy(WaterLevelLineChart.gameObject);
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Lancer la simulation";
         }
         ModifyPlayButtonProperties(manager.Playing);

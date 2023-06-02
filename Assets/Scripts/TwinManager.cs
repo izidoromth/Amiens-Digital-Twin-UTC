@@ -17,6 +17,7 @@ using static TreeEditor.TextureAtlas;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Globalization;
 using static System.Net.Mime.MediaTypeNames;
+using XCharts.Runtime;
 
 public class TwinManager : MonoBehaviour
 {
@@ -239,6 +240,8 @@ public class TwinManager : MonoBehaviour
     }
     void UpdateWaterLevel()
     {
+        float floodAvg = 0;
+        int time = 0;
         foreach (GameObject floodSector in floodSectorGameObjects)
         {
             var floodSectorData = SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSector.name));
@@ -271,9 +274,20 @@ public class TwinManager : MonoBehaviour
             secondToLastHeightCasier[floodSector.name] = lastHeightCasier[floodSector.name];
             lastHeightCasier[floodSector.name] = pumping ? newHeight : floodSectorData.Level.Value;
 
+            floodAvg += lastHeightCasier[floodSector.name];
+            time = floodSectorData.Time.Value;
+
             aux.Add(floodSectorData);
             SelectedFlood.Remove(floodSectorData);
         }
+        UIManager UIManager = GameObject.Find("UI").GetComponent<UIManager>();
+        Serie serie = UIManager.LineChart.series[0];
+        if(serie.dataCount > 500)
+        {
+            for (int i = 0; i < serie.dataCount - 500; i++)
+                serie.RemoveData(i);
+        }
+        serie.AddXYData(time, Math.Round(floodAvg / floodSectorGameObjects.Count, 3));
     }
 
     void HandleInputs()
