@@ -15,13 +15,11 @@ public class UIManager : MonoBehaviour
     public Button PlayButton;
     public Toggle Decennale;
     public Toggle Millenale;
-    public Toggle PumpToggle;
-    public Slider PumpSlider;
+    public Toggle Actuel;
+    public Toggle Future;
     public Button Speed2x;
     public Button Speed5x;
     public Button Speed10x;
-    public TMP_InputField FloodRangeMin;
-    public TMP_InputField FloodRangeMax;
 
     TwinManager manager;
     int selectedSpeed;
@@ -33,15 +31,12 @@ public class UIManager : MonoBehaviour
         OpenCloseParameters.onClick.AddListener(delegate () { OpenCloseParametersClicked(); });
         Millenale.onValueChanged.AddListener(delegate (bool val) { MillenaleSelected(val); });
         Decennale.onValueChanged.AddListener(delegate (bool val) { DecennaleSelected(val); });
+        Actuel.onValueChanged.AddListener(delegate (bool val) { ActuelSelected(val); });
+        Future.onValueChanged.AddListener(delegate (bool val) { FutureSelected(val); });
         Speed2x.onClick.AddListener(delegate () { SpeedSelected(2); });
         Speed5x.onClick.AddListener(delegate () { SpeedSelected(5); });
         Speed10x.onClick.AddListener(delegate () { SpeedSelected(10); });
         PlayButton.onClick.AddListener(delegate () { PlaySimulation(); });
-        PumpToggle.onValueChanged.AddListener(delegate (bool val) { PumpValueChanged(val); });
-        FloodRangeMin.onValueChanged.AddListener(delegate (string val) { FloodRangeMinChanged(val); });
-        FloodRangeMax.onValueChanged.AddListener(delegate (string val) { FloodRangeMaxChanged(val); });
-        PumpSlider.minValue = 100;
-        PumpSlider.maxValue = 500;
 
         manager = GameObject.Find("TwinManager").GetComponent<TwinManager>();
     }
@@ -108,9 +103,20 @@ public class UIManager : MonoBehaviour
         PlayButton.image.color = selectedSpeed != 0 && (Millenale.isOn || Decennale.isOn) ? new Color(.12f, .78f, .51f) : new Color(.82f, .82f, .82f);
     }
 
-    void PumpValueChanged(bool val)
+    void ActuelSelected(bool val)
     {
-        manager.PumpsEnabled = val;
+        if (val && Actuel.isOn)
+        {
+            Future.isOn = false;
+        }
+    }
+
+    void FutureSelected(bool val)
+    {
+        if (val && Future.isOn)
+        {
+            Actuel.isOn = false;
+        }
     }
 
     void SpeedSelected(int speed)
@@ -150,7 +156,7 @@ public class UIManager : MonoBehaviour
         if (!manager.Playing && selectedSpeed != 0 && (Millenale.isOn || Decennale.isOn))
         {       
             manager.PlaySimulation(selectedSpeed);
-            manager.PumpFlow = PumpSlider.value;
+            manager.PumpFlow = 100;
             CreateWaterLevelLineChart();
             OpenCloseParametersClicked();
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Finir la simulation";
@@ -170,23 +176,5 @@ public class UIManager : MonoBehaviour
             PlayButton.image.color = new Color(1f, 0f, 0f);
         else
             PlayButton.image.color = selectedSpeed != 0 && (Millenale.isOn || Decennale.isOn) ? new Color(.12f, .78f, .51f) : new Color(.82f, .82f, .82f);
-    }
-
-    void FloodRangeMinChanged(string val)
-    {
-        float value;
-        if(float.TryParse(val, out value))
-        {
-            manager.FloodMinThreshold = value;
-        }
-    }
-
-    void FloodRangeMaxChanged(string val)
-    {
-        float value;
-        if (float.TryParse(val, out value))
-        {
-            manager.FloodMaxThreshold = value;
-        }
     }
 }
