@@ -23,7 +23,6 @@ public class TwinManager : MonoBehaviour
 {
     List<GameObject> floodSectorGameObjects = new List<GameObject>();
     List<WaterFlood> aux = new List<WaterFlood>();
-    AmiensDigitalTwinDbContext context;
     Dictionary<int, List<WaterFlood>> floodsPerYear = new Dictionary<int, List<WaterFlood>>();
     bool pumping;
 
@@ -61,75 +60,26 @@ public class TwinManager : MonoBehaviour
         { "KF03", 68127.322f }
     };
 
-    Dictionary<string, float> totalHeightPumpedCasier = new Dictionary<string, float>()
-    {
-        { "KE02", 0f },
-        { "KE03", 0f },
-        { "KE06", 0f },
-        { "KE07", 0f },
-        { "KE08", 0f },
-        { "KE10", 0f },
-        { "KE11", 0f },
-        { "KE12", 0f },
-        { "KE14", 0f },
-        { "KF00", 0f },
-        { "KF01", 0f },
-        { "KF02", 0f },
-        { "KF03", 0f }
-    };
-
-    Dictionary<string, float> lastHeightCasier = new Dictionary<string, float>()
-    {
-        { "KE02", 0f },
-        { "KE03", 0f },
-        { "KE06", 0f },
-        { "KE07", 0f },
-        { "KE08", 0f },
-        { "KE10", 0f },
-        { "KE11", 0f },
-        { "KE12", 0f },
-        { "KE14", 0f },
-        { "KF00", 0f },
-        { "KF01", 0f },
-        { "KF02", 0f },
-        { "KF03", 0f }
-    };
-
-    Dictionary<string, float> secondToLastHeightCasier = new Dictionary<string, float>()
-    {
-        { "KE02", 0f },
-        { "KE03", 0f },
-        { "KE06", 0f },
-        { "KE07", 0f },
-        { "KE08", 0f },
-        { "KE10", 0f },
-        { "KE11", 0f },
-        { "KE12", 0f },
-        { "KE14", 0f },
-        { "KF00", 0f },
-        { "KF01", 0f },
-        { "KF02", 0f },
-        { "KF03", 0f }
-    };
+    public AmiensDigitalTwinDbContext Context;
 
     public List<WaterFlood> SelectedFlood;
+
     public Component ActiveBuildingInfo;
     public bool Playing { get; set; }
-    public bool PumpsEnabled { get; set; }
     public float FloodMaxThreshold { get; set; }
     public float FloodMinThreshold { get; set; }
     public int SelectedFloodYear { get; set; }
-    public float PumpFlow { get; set; }
+    public string SelectedPumpCasier { get; set; }
 
     void Start()
     {
         // Connect to the database
-        context = DbConnectionContext.GetContext<AmiensDigitalTwinDbContext>(
+        Context = DbConnectionContext.GetContext<AmiensDigitalTwinDbContext>(
             (options, defaultSchema) => { return new AmiensDigitalTwinDbContext(options, defaultSchema); },
             "postgres", "12345678", "amiens_digital_twin", port: "5433");
 
-        floodsPerYear.Add(1994, context.WaterFloods.Where(f => f.Year == 1994).OrderBy(f => f.Time).ToList());
-        floodsPerYear.Add(9999, context.WaterFloods.Where(f => f.Year == 1994).OrderBy(f => f.Time).ToList());
+        floodsPerYear.Add(1994, Context.WaterFloods.Where(f => f.Year == 1994).OrderBy(f => f.Time).ToList());
+        floodsPerYear.Add(9999, Context.WaterFloods.Where(f => f.Year == 1994).OrderBy(f => f.Time).ToList());
 
         // Instantiate city objects
         InstantiateFloodSectors();
@@ -144,7 +94,7 @@ public class TwinManager : MonoBehaviour
 
     void InstantiateFloodSectors()
     {
-        foreach(FloodSector sector in context.FloodSectors.ToList())
+        foreach(FloodSector sector in Context.FloodSectors.ToList())
         {
             GameObject floodSectorGameObject = LoadFromGeometry(sector.Geometry, sector.SectorId);
 
@@ -169,7 +119,7 @@ public class TwinManager : MonoBehaviour
 
     void InstantiateBuildings()
     {
-        foreach (Building building in context.Buildings.ToList())
+        foreach (Building building in Context.Buildings.ToList())
         {
             GameObject buildingGameObject =  LoadFromGeometry(building.Geometry, building.Id, "Buildings.jpg");
 
@@ -193,7 +143,7 @@ public class TwinManager : MonoBehaviour
 
     void InstantiateTerrains()
     {
-        foreach (DatabaseConnection.Entities.Terrain terrain in context.Terrains.ToList())
+        foreach (DatabaseConnection.Entities.Terrain terrain in Context.Terrains.ToList())
         {
             LoadFromGeometry(terrain.Geometry, terrain.Id.ToString(),"Terrain.png");
         }
@@ -231,7 +181,6 @@ public class TwinManager : MonoBehaviour
         Playing = false;
         pumping = false;
         foreach (GameObject floodSector in floodSectorGameObjects) {
-            totalHeightPumpedCasier[floodSector.name] = 0;
             floodSector.SetActive(false); 
         }
         SelectedFlood = floodsPerYear[SelectedFloodYear].ToList();
@@ -240,8 +189,8 @@ public class TwinManager : MonoBehaviour
     }
     void UpdateWaterLevel()
     {
-        float floodAvg = 0;
         int time = 0;
+        float chartHeight = 0;
         foreach (GameObject floodSector in floodSectorGameObjects)
         {
             var floodSectorData = SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSector.name));
@@ -250,31 +199,14 @@ public class TwinManager : MonoBehaviour
                 SelectedFlood = aux;
                 return;
             }
-            float newHeight = floodSectorData.Level.Value;
-            if (PumpsEnabled)
-            {
-                totalHeightPumpedCasier[floodSector.name] = 
-                    pumping ? 
-                        totalHeightPumpedCasier[floodSector.name] + PumpFlow * 2 / areaCasier[floodSector.name] : 
-                        totalHeightPumpedCasier[floodSector.name];
+            float newHeight = SelectedPumpCasier == floodSector.name ? floodSectorData.Level.Value - (0 * 2 / areaCasier[floodSector.name]) : floodSectorData.Level.Value;
 
-                newHeight -= totalHeightPumpedCasier[floodSector.name];
+            if(SelectedPumpCasier == floodSector.name)
+                chartHeight = newHeight;
 
-                if (lastHeightCasier[floodSector.name] - secondToLastHeightCasier[floodSector.name] > 0 && floodSectorData.Level.Value >= FloodMaxThreshold)
-                    pumping = true;
-                else if (lastHeightCasier[floodSector.name] - secondToLastHeightCasier[floodSector.name] < 0 && newHeight <= FloodMinThreshold)
-                {
-                    pumping = false;
-                    totalHeightPumpedCasier[floodSector.name] = 0;
-                }
-            }
             Transform floodSectorTransform = floodSector.transform.GetChild(0).transform;
-            floodSectorTransform.position = new Vector3(floodSectorTransform.position.x, pumping ? newHeight : floodSectorData.Level.Value, floodSectorTransform.position.z);
+            floodSectorTransform.position = new Vector3(floodSectorTransform.position.x, newHeight, floodSectorTransform.position.z);
 
-            secondToLastHeightCasier[floodSector.name] = lastHeightCasier[floodSector.name];
-            lastHeightCasier[floodSector.name] = pumping ? newHeight : floodSectorData.Level.Value;
-
-            floodAvg += lastHeightCasier[floodSector.name];
             time = floodSectorData.Time.Value;
 
             aux.Add(floodSectorData);
@@ -287,7 +219,7 @@ public class TwinManager : MonoBehaviour
             for (int i = 0; i < serie.dataCount - 500; i++)
                 serie.RemoveData(i);
         }
-        serie.AddXYData(time, Math.Round(floodAvg / floodSectorGameObjects.Count, 3));
+        serie.AddXYData(time, Math.Round(chartHeight, 3));
     }
 
     void HandleInputs()

@@ -2,6 +2,7 @@ using Assets.Scripts;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,6 +21,7 @@ public class UIManager : MonoBehaviour
     public Button Speed2x;
     public Button Speed5x;
     public Button Speed10x;
+    public TMP_Dropdown CasiersDropdown;
 
     TwinManager manager;
     int selectedSpeed;
@@ -28,6 +30,8 @@ public class UIManager : MonoBehaviour
     public LineChart LineChart;
     private void Start()
     {
+        manager = GameObject.Find("TwinManager").GetComponent<TwinManager>();
+
         OpenCloseParameters.onClick.AddListener(delegate () { OpenCloseParametersClicked(); });
         Millenale.onValueChanged.AddListener(delegate (bool val) { MillenaleSelected(val); });
         Decennale.onValueChanged.AddListener(delegate (bool val) { DecennaleSelected(val); });
@@ -37,8 +41,14 @@ public class UIManager : MonoBehaviour
         Speed5x.onClick.AddListener(delegate () { SpeedSelected(5); });
         Speed10x.onClick.AddListener(delegate () { SpeedSelected(10); });
         PlayButton.onClick.AddListener(delegate () { PlaySimulation(); });
-
-        manager = GameObject.Find("TwinManager").GetComponent<TwinManager>();
+        List<TMP_Dropdown.OptionData> casierOptions = new List<TMP_Dropdown.OptionData>
+        {
+            new TMP_Dropdown.OptionData() { text = "Non" }
+        };
+        foreach (var sector in manager.Context.FloodSectors.Select(s => s.SectorId).ToList())
+            casierOptions.Add(new TMP_Dropdown.OptionData() { text = sector });
+        CasiersDropdown.options = casierOptions;
+        CasiersDropdown.onValueChanged.AddListener(delegate (int val) { CasierSelected(val); });
     }
 
     void CreateWaterLevelLineChart()
@@ -151,12 +161,16 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    void CasierSelected(int val)
+    {
+        manager.SelectedPumpCasier = CasiersDropdown.options[val].text;
+    }
+
     void PlaySimulation()
     {
         if (!manager.Playing && selectedSpeed != 0 && (Millenale.isOn || Decennale.isOn))
         {       
             manager.PlaySimulation(selectedSpeed);
-            manager.PumpFlow = 100;
             CreateWaterLevelLineChart();
             OpenCloseParametersClicked();
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Finir la simulation";
