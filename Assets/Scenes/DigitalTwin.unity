@@ -489,7 +489,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Future
+  m_text: Prospectifs
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1056,8 +1056,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -40, y: -5.5}
-  m_SizeDelta: {x: 132.2, y: 30}
+  m_AnchoredPosition: {x: -27, y: -7}
+  m_SizeDelta: {x: 195.8, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &363223423
 MonoBehaviour:
@@ -1079,7 +1079,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Zone de stockage
+  m_text: "Zone de stockage (d\xE9blai)"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1944,7 +1944,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Mesures d'att\xE9nuation"
+  m_text: Mesures structurelles
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3040,7 +3040,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -52.2, y: 5.0999985}
+  m_AnchoredPosition: {x: -52.2, y: -4.3999405}
   m_SizeDelta: {x: 233.5, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &903215780
@@ -3807,7 +3807,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Actuel
+  m_text: Actuels
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -6504,7 +6504,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Batardeau
+  m_text: Batardeaux
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -7976,8 +7976,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -19, y: -15}
-  m_SizeDelta: {x: 300, y: 40}
+  m_AnchoredPosition: {x: 1, y: -15}
+  m_SizeDelta: {x: 339.3, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1962831722
 MonoBehaviour:
@@ -8405,8 +8405,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 52, y: 35}
-  m_SizeDelta: {x: 160, y: 25}
+  m_AnchoredPosition: {x: 65, y: 35}
+  m_SizeDelta: {x: 200, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2078860735
 MonoBehaviour:
@@ -8428,7 +8428,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Pompe sector
+  m_text: Secteur de pompage
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -8455,8 +8455,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 22
-  m_fontSizeBase: 22
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -8828,7 +8828,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -52.3, y: -39.50006}
+  m_AnchoredPosition: {x: -52.3, y: -49}
   m_SizeDelta: {x: 233.5, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2096658097
