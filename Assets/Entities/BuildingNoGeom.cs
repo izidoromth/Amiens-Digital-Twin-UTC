@@ -1,6 +1,6 @@
 ﻿namespace DatabaseConnection.Entities
 {
-    public class Building
+    public class BuildingNoGeom
     {
         public string Id { get; set; }
         public string? Nature { get; set; }
@@ -11,6 +11,5 @@
         public float? Hauter { get; set; }
         public float? ZMinSol { get; set; }
         public float? ZMinToit { get; set; }
-        public byte[]? Geometry { get; set; }
     }
 }

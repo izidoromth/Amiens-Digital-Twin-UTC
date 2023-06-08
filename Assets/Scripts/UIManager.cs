@@ -1,6 +1,4 @@
-using Assets.Scripts;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -22,6 +20,8 @@ public class UIManager : MonoBehaviour
     public Button Speed5x;
     public Button Speed10x;
     public TMP_Dropdown CasiersDropdown;
+    public Slider ThresholdSlider;
+    public TextMeshProUGUI PumpLabel;
 
     TwinManager manager;
     int selectedSpeed;
@@ -41,6 +41,7 @@ public class UIManager : MonoBehaviour
         Speed5x.onClick.AddListener(delegate () { SpeedSelected(5); });
         Speed10x.onClick.AddListener(delegate () { SpeedSelected(10); });
         PlayButton.onClick.AddListener(delegate () { PlaySimulation(); });
+        ThresholdSlider.onValueChanged.AddListener(delegate (float val) { ThresholdChanged(val); });
         List<TMP_Dropdown.OptionData> casierOptions = new List<TMP_Dropdown.OptionData>
         {
             new TMP_Dropdown.OptionData() { text = "Non" }
@@ -107,7 +108,7 @@ public class UIManager : MonoBehaviour
             Millenale.isOn = false;
         }
 
-        if(val)
+        if (val)
             manager.SelectedFloodYear = 1994;
 
         PlayButton.image.color = selectedSpeed != 0 && (Millenale.isOn || Decennale.isOn) ? new Color(.12f, .78f, .51f) : new Color(.82f, .82f, .82f);
@@ -161,6 +162,12 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    void ThresholdChanged(float val)
+    {
+        manager.FloodThreshold = (float)Math.Round(val, 1);
+        PumpLabel.text = $"{manager.FloodThreshold}m";
+    }
+
     void CasierSelected(int val)
     {
         manager.SelectedPumpCasier = CasiersDropdown.options[val].text;
@@ -169,9 +176,10 @@ public class UIManager : MonoBehaviour
     void PlaySimulation()
     {
         if (!manager.Playing && selectedSpeed != 0 && (Millenale.isOn || Decennale.isOn))
-        {       
+        {
             manager.PlaySimulation(selectedSpeed);
-            CreateWaterLevelLineChart();
+            if(manager.SelectedPumpCasier != "Non")
+                CreateWaterLevelLineChart();
             OpenCloseParametersClicked();
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Finir la simulation";
         }

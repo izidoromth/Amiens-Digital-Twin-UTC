@@ -1,7 +1,4 @@
-using Assets.Scripts;
 using DatabaseConnection.Entities;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -11,16 +8,16 @@ public class HandleBuildingInfo : MonoBehaviour
     bool flooding;
     string floodSectorName;
     SetBuildingInfo setBuildingInfoComponent;
-    public Building BuildingInfo;
+    public BuildingNoGeom BuildingInfo;
     void Update()
     {
-        if(manager == null)
+        if (manager == null)
             manager = GameObject.Find("TwinManager").GetComponent<TwinManager>();
 
         if (MouseoverObject())
         {
             GetComponent<Outline>().enabled = true;
-            
+
             if (Input.GetMouseButtonDown(0))
             {
                 Destroy(GameObject.FindGameObjectWithTag("BuildingInfo"));
@@ -39,14 +36,14 @@ public class HandleBuildingInfo : MonoBehaviour
                 manager.ActiveBuildingInfo = this;
             }
         }
-        else if(manager.ActiveBuildingInfo != this)
+        else if (manager.ActiveBuildingInfo != this)
         {
             GetComponent<Outline>().enabled = false;
         }
 
         if (flooding && setBuildingInfoComponent is not null && manager.SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSectorName)) is not null)
         {
-            float minY = GetComponent<MeshFilter>().mesh.vertices.OrderBy(v => v.y).FirstOrDefault().y;
+            float minY = transform.position.y;
             float floodHeight = manager.SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSectorName)).Level.Value - minY;
             setBuildingInfoComponent.FloodHeight = floodHeight.ToString("0.00");
         }
@@ -67,7 +64,7 @@ public class HandleBuildingInfo : MonoBehaviour
     void OnTriggerExit(Collider other)
     {
         flooding = false;
-        if(setBuildingInfoComponent is not null)
+        if (setBuildingInfoComponent is not null)
             setBuildingInfoComponent.FloodHeight = "0";
     }
 }

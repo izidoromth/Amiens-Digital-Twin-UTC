@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Clock : MonoBehaviour
@@ -12,7 +10,7 @@ public class Clock : MonoBehaviour
     void Update()
     {
         timeFixed = Time.realtimeSinceStartup * timeSpeed;
-        if (timeFixed % (60*60) < 1 && lastTimepoint !=  (int)timeFixed)
+        if (timeFixed % (60 * 60) < 1 && lastTimepoint != (int)timeFixed)
         {
             lastTimepoint = (int)(Time.realtimeSinceStartup * timeSpeed);
             Debug.Log(++hoursPassed);

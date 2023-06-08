@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CoordinatesConverter : MonoBehaviour
@@ -9,6 +7,6 @@ public class CoordinatesConverter : MonoBehaviour
 
     void Start()
     {
-        
+
     }
 }

@@ -1,11 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using DatabaseConnection;
-using DatabaseConnection.Entities;
-using DatabaseConnection.Context;
-using UnityEngine;
 using APIRequest;
+using UnityEngine;
 
 public class DatabaseConnectionTest : MonoBehaviour
 {

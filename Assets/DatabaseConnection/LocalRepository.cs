@@ -1,9 +1,8 @@
-using System.Collections.Generic;
 using APIRequest;
-using DatabaseConnection.Entities;
 using DatabaseConnection.Context;
+using DatabaseConnection.Entities;
+using System.Collections.Generic;
 using System.Linq;
-using System;
 
 public class LocalRepository : IRepository
 {

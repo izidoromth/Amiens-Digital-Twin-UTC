@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using DatabaseConnection.Entities;
+﻿using DatabaseConnection.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace DatabaseConnection.Context
 {
@@ -13,6 +13,7 @@ namespace DatabaseConnection.Context
         }
 
         public DbSet<Building> Buildings { get; set; }
+        public DbSet<BuildingNoGeom> BuildingsNoGeom { get; set; }
         public DbSet<FloodSector> FloodSectors { get; set; }
         public DbSet<Terrain> Terrains { get; set; }
         public DbSet<WaterFlood> WaterFloods { get; set; }
@@ -36,6 +37,22 @@ namespace DatabaseConnection.Context
                     eb.Property(b => b.ZMinSol).HasColumnName("z_min_sol");
                     eb.Property(b => b.ZMinToit).HasColumnName("z_min_toit");
                     eb.Property(b => b.Geometry).HasColumnName("geometry");
+                });
+
+            builder.Entity<BuildingNoGeom>(
+                eb =>
+                {
+                    eb.ToTable("buildings_no_geom");
+                    eb.HasNoKey();
+                    eb.Property(b => b.Id).HasColumnName("id");
+                    eb.Property(b => b.Nature).HasColumnName("nature");
+                    eb.Property(b => b.Usage1).HasColumnName("usage1");
+                    eb.Property(b => b.Usage2).HasColumnName("usage2");
+                    eb.Property(b => b.NbLogts).HasColumnName("nb_logts");
+                    eb.Property(b => b.NbEtages).HasColumnName("nb_etages");
+                    eb.Property(b => b.Hauter).HasColumnName("hauter");
+                    eb.Property(b => b.ZMinSol).HasColumnName("z_min_sol");
+                    eb.Property(b => b.ZMinToit).HasColumnName("z_min_toit");
                 });
 
             builder.Entity<FloodSector>(

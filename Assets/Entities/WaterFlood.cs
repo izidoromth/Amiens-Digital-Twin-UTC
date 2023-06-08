@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace DatabaseConnection.Entities
+﻿namespace DatabaseConnection.Entities
 {
     public class WaterFlood
     {
