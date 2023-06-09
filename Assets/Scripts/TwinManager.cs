@@ -122,6 +122,7 @@ public class TwinManager : MonoBehaviour
             // add mesh collider to detect flood
             GameObject floodSector = floodSectorGameObject.transform.GetChild(0).gameObject;
             floodSector.AddComponent<MeshCollider>();
+            floodSector.AddComponent<HandleFloodSectorInfo>();
 
             // change material to make it transparent
             Material objectMaterial = new Material(Shader.Find("Standard"));
@@ -253,10 +254,7 @@ public class TwinManager : MonoBehaviour
             SelectedFlood.Remove(floodSectorData);
         }
         if(aux.Count == 0)
-        {
-            UIManager.LineChart.RemoveSerie(serie);
-            UIManager.LineChart.AddSerie<Line>();
-        }            
+            UIManager.ClearChartData();
     }
 
     void HandleInputs()

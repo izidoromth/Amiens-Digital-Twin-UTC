@@ -1,3 +1,4 @@
+using Assets.Scripts;
 using DatabaseConnection.Entities;
 using System.Linq;
 using UnityEngine;
@@ -14,7 +15,7 @@ public class HandleBuildingInfo : MonoBehaviour
         if (manager == null)
             manager = GameObject.Find("TwinManager").GetComponent<TwinManager>();
 
-        if (MouseoverObject())
+        if (UIUtils.MouseoverObject(gameObject))
         {
             GetComponent<Outline>().enabled = true;
 
@@ -47,13 +48,6 @@ public class HandleBuildingInfo : MonoBehaviour
             float floodHeight = manager.SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSectorName)).Level.Value - minY;
             setBuildingInfoComponent.FloodHeight = floodHeight.ToString("0.00");
         }
-    }
-
-    bool MouseoverObject()
-    {
-        RaycastHit hit;
-        Ray ray = FindAnyObjectByType<Camera>().ScreenPointToRay(Input.mousePosition);
-        return Physics.Raycast(ray, out hit) && hit.collider.gameObject.Equals(gameObject);
     }
 
     void OnTriggerEnter(Collider other)

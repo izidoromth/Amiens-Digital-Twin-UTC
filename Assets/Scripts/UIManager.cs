@@ -52,6 +52,12 @@ public class UIManager : MonoBehaviour
         CasiersDropdown.onValueChanged.AddListener(delegate (int val) { CasierSelected(val); });
     }
 
+    public void ClearChartData()
+    {
+        LineChart.RemoveAllSerie();
+        LineChart.AddSerie<Line>();
+    }
+
     void CreateWaterLevelLineChart()
     {
         WaterLevelLineChart = new GameObject("WaterLevelLineChart");
@@ -182,12 +188,14 @@ public class UIManager : MonoBehaviour
                 CreateWaterLevelLineChart();
             OpenCloseParametersClicked();
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Finir la simulation";
+            ChangeComponentsInteractable(false);
         }
         else if (manager.Playing)
         {
             manager.StopSimulation();
             Destroy(WaterLevelLineChart.gameObject);
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Lancer la simulation";
+            ChangeComponentsInteractable(true);
         }
         ModifyPlayButtonProperties(manager.Playing);
     }
@@ -198,5 +206,18 @@ public class UIManager : MonoBehaviour
             PlayButton.image.color = new Color(1f, 0f, 0f);
         else
             PlayButton.image.color = selectedSpeed != 0 && (Millenale.isOn || Decennale.isOn) ? new Color(.12f, .78f, .51f) : new Color(.82f, .82f, .82f);
+    }
+
+    void ChangeComponentsInteractable(bool state)
+    {
+        Millenale.interactable = state;
+        Decennale.interactable = state;
+        Actuel.interactable = state;
+        Future.interactable = state;
+        Speed2x.interactable = state;
+        Speed5x.interactable = state;
+        Speed10x.interactable = state;
+        ThresholdSlider.interactable = state;
+        CasiersDropdown.interactable = state;
     }
 }
