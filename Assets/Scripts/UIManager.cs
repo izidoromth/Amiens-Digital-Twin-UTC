@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.ProBuilder.Shapes;
 using UnityEngine.UI;
 using XCharts.Runtime;
 
@@ -27,7 +28,8 @@ public class UIManager : MonoBehaviour
     int selectedSpeed;
 
     public GameObject WaterLevelLineChart;
-    public LineChart LineChart;
+    LineChart lineChart;
+
     private void Start()
     {
         manager = GameObject.Find("TwinManager").GetComponent<TwinManager>();
@@ -54,26 +56,40 @@ public class UIManager : MonoBehaviour
 
     public void ClearChartData()
     {
-        LineChart.RemoveAllSerie();
-        LineChart.AddSerie<Line>();
+        lineChart.RemoveAllSerie();
+        lineChart.AddSerie<Line>();
     }
+
+    GameObject alert;
+    public void ShowAlert()
+    {
+        alert = Instantiate((GameObject)Resources.Load("Prefabs/FloodAlert", typeof(GameObject)));
+        alert.transform.SetParent(GameObject.Find("UI").transform, false);
+    }
+
+    public void DisableAlert()
+    {
+        Destroy(alert);
+    }
+
+    public void AddSeriesData(int x, double y) => lineChart.series[0]?.AddXYData(x, y);
 
     void CreateWaterLevelLineChart()
     {
         WaterLevelLineChart = new GameObject("WaterLevelLineChart");
 
         // init line chart
-        LineChart = WaterLevelLineChart.AddComponent<LineChart>();
-        LineChart.Init();
-        LineChart.RemoveAllSerie();
-        LineChart.AddSerie<Line>();
+        lineChart = WaterLevelLineChart.AddComponent<LineChart>();
+        lineChart.Init();
+        lineChart.RemoveAllSerie();
+        lineChart.AddSerie<Line>();
 
-        LineChart.GetChartComponent<Title>().text = "Average Water Level (m)";
-        LineChart.GetChartComponent<GridCoord>().left = .2f;
-        LineChart.GetChartComponent<XAxis>().type = Axis.AxisType.Value;
-        LineChart.GetChartComponent<XAxis>().minMaxType = Axis.AxisMinMaxType.MinMax;
-        LineChart.GetChartComponent<YAxis>().type = Axis.AxisType.Value;
-        LineChart.GetChartComponent<YAxis>().minMaxType = Axis.AxisMinMaxType.MinMax;
+        lineChart.GetChartComponent<Title>().text = "Average Water Level (m)";
+        lineChart.GetChartComponent<GridCoord>().left = .2f;
+        lineChart.GetChartComponent<XAxis>().type = Axis.AxisType.Value;
+        lineChart.GetChartComponent<XAxis>().minMaxType = Axis.AxisMinMaxType.MinMax;
+        lineChart.GetChartComponent<YAxis>().type = Axis.AxisType.Value;
+        lineChart.GetChartComponent<YAxis>().minMaxType = Axis.AxisMinMaxType.MinMax;
 
         // adjust size and position
         WaterLevelLineChart.transform.SetParent(GameObject.Find("UI").transform, false);
@@ -184,8 +200,7 @@ public class UIManager : MonoBehaviour
         if (!manager.Playing && selectedSpeed != 0 && (Millenale.isOn || Decennale.isOn))
         {
             manager.PlaySimulation(selectedSpeed);
-            if(manager.SelectedPumpCasier != "Non")
-                CreateWaterLevelLineChart();
+            CreateWaterLevelLineChart();
             OpenCloseParametersClicked();
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Finir la simulation";
             ChangeComponentsInteractable(false);

@@ -14,7 +14,7 @@ public class TwinManager : MonoBehaviour
     List<GameObject> floodSectorGameObjects = new List<GameObject>();
     List<WaterFlood> aux = new List<WaterFlood>();
     Dictionary<int, List<WaterFlood>> floodsPerYear = new Dictionary<int, List<WaterFlood>>();
-    bool pumping;
+    bool alertEnabled;
 
     Dictionary<string, float> fondCasier = new Dictionary<string, float>()
     {
@@ -60,7 +60,7 @@ public class TwinManager : MonoBehaviour
     public bool Playing { get; set; }
     public float FloodThreshold { get; set; } = 0.25f;
     public int SelectedFloodYear { get; set; }
-    public string SelectedPumpCasier { get; set; }
+    public string SelectedPumpCasier { get; set; } = "Non";
     public float PumpValue { get; set; } = 100;
 
     void Start()
@@ -211,7 +211,6 @@ public class TwinManager : MonoBehaviour
     public void StopSimulation()
     {
         Playing = false;
-        pumping = false;
         foreach (GameObject floodSector in floodSectorGameObjects)
         {
             floodSector.SetActive(false);
@@ -223,11 +222,13 @@ public class TwinManager : MonoBehaviour
     void UpdateWaterLevel()
     {
         int time = 0;
+        double avgHeight = 0;
 
-        UIManager UIManager = GameObject.Find("UI").GetComponent<UIManager>();
-        Serie serie = UIManager.LineChart.series[0];
+        UIManager uiManager = GameObject.Find("UI").GetComponent<UIManager>();
+
         foreach (GameObject floodSector in floodSectorGameObjects)
         {
+            // retrieve water level data
             var floodSectorData = SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSector.name));
             if (floodSectorData == null)
             {
@@ -235,26 +236,52 @@ public class TwinManager : MonoBehaviour
                 aux.Clear();
                 break;
             }
+
+            // calculate water height taking out terrain level
             float currHeight = floodSectorData.Level.Value - minCasier[SelectedFloodYear][floodSector.name];
             bool thresholdReached = SelectedPumpCasier == floodSector.name && currHeight > FloodThreshold;
 
+            // calculate new height based if threshold reached
             float noise = 0.01f*Mathf.Sin(0.005f*floodSectorData.Time.Value);
             float newHeight = thresholdReached ? FloodThreshold + noise : currHeight;
 
+            avgHeight += newHeight;
+
+            // update sector height
             Transform floodSectorTransform = floodSector.transform.GetChild(0).transform;
             floodSectorTransform.position = new Vector3(floodSectorTransform.position.x, newHeight + fondCasier[floodSector.name], floodSectorTransform.position.z);
 
+            // show water level alert
+            if(SelectedPumpCasier == floodSector.name && thresholdReached && !alertEnabled)
+            {
+                uiManager.ShowAlert();
+                alertEnabled = true;
+            }
+            else if (SelectedPumpCasier == floodSector.name && !thresholdReached && alertEnabled)
+            {
+                uiManager.DisableAlert();
+                alertEnabled = false;
+            }
+
+            // update chart
             time = floodSectorData.Time.Value; 
             if (SelectedPumpCasier == floodSector.name)
             {
-                serie.AddXYData(time, Math.Round(newHeight, 3));
+                uiManager.AddSeriesData(time, Math.Round(newHeight, 3));
             }
 
+            // update water level list and aux list
             aux.Add(floodSectorData);
             SelectedFlood.Remove(floodSectorData);
         }
+
+        if(SelectedPumpCasier == "Non")
+        {
+            uiManager.AddSeriesData(time, Math.Round(avgHeight / floodSectorGameObjects.Count, 3));
+        }
+
         if(aux.Count == 0)
-            UIManager.ClearChartData();
+            uiManager.ClearChartData();
     }
 
     void HandleInputs()
