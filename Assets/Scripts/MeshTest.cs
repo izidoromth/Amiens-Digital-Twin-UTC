@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MeshTest : MonoBehaviour
@@ -21,7 +19,7 @@ public class MeshTest : MonoBehaviour
 
     Vector3[] GenerateVertices()
     {
-        return new Vector3[] 
+        return new Vector3[]
         {
             new Vector3(0,0,0),
             new Vector3(1,0,0),

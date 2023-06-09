@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Rendering;
 
@@ -50,7 +49,7 @@ public class RamSpline : MonoBehaviour
     public List<Vector3> controlPointsDown = new List<Vector3>();
     public List<float> controlPointsSnap = new List<float>();
 
-    public AnimationCurve meshCurve = new AnimationCurve(new Keyframe[] {new Keyframe(0, 0), new Keyframe(1, 0)});
+    public AnimationCurve meshCurve = new AnimationCurve(new Keyframe[] { new Keyframe(0, 0), new Keyframe(1, 0) });
     public List<AnimationCurve> controlPointsMeshCurves = new List<AnimationCurve>();
 
     public bool normalFromRaycast = false;
@@ -205,13 +204,13 @@ public class RamSpline : MonoBehaviour
     public LayerMask maskCarve = 1;
 
     public AnimationCurve terrainCarve =
-        new AnimationCurve(new Keyframe[] {new Keyframe(0, 0.5f), new Keyframe(10, -4)});
+        new AnimationCurve(new Keyframe[] { new Keyframe(0, 0.5f), new Keyframe(10, -4) });
 
     public float distSmooth = 5;
     public float distSmoothStart = 1;
 
     public AnimationCurve terrainPaintCarve =
-        new AnimationCurve(new Keyframe[] {new Keyframe(0, 0), new Keyframe(1, 1)});
+        new AnimationCurve(new Keyframe[] { new Keyframe(0, 0), new Keyframe(1, 1) });
 
     public int currentSplatMap = 1;
 
@@ -300,7 +299,7 @@ public class RamSpline : MonoBehaviour
         controlPointsRotations.Add(Quaternion.identity);
         controlPoints.Add(position);
         controlPointsSnap.Add(0);
-        controlPointsMeshCurves.Add(new AnimationCurve(new Keyframe[] {new Keyframe(0, 0), new Keyframe(1, 0)}));
+        controlPointsMeshCurves.Add(new AnimationCurve(new Keyframe[] { new Keyframe(0, 0), new Keyframe(1, 0) }));
     }
 
     /// <summary>
@@ -320,7 +319,7 @@ public class RamSpline : MonoBehaviour
         if (i < controlPoints.Count - 1 && controlPoints.Count > i + 1)
         {
             Vector4 positionSecond = controlPoints[i + 1];
-            if (Vector3.Distance((Vector3) positionSecond, (Vector3) position) > 0)
+            if (Vector3.Distance((Vector3)positionSecond, (Vector3)position) > 0)
                 position = (position + positionSecond) * 0.5f;
             else
                 position.x += 1;
@@ -328,7 +327,7 @@ public class RamSpline : MonoBehaviour
         else if (controlPoints.Count > 1 && i == controlPoints.Count - 1)
         {
             Vector4 positionSecond = controlPoints[i - 1];
-            if (Vector3.Distance((Vector3) positionSecond, (Vector3) position) > 0)
+            if (Vector3.Distance((Vector3)positionSecond, (Vector3)position) > 0)
                 position = position + (position - positionSecond);
             else
                 position.x += 1;
@@ -404,7 +403,7 @@ public class RamSpline : MonoBehaviour
     public void GenerateBeginningParentBased()
     {
         vertsInShape =
-            (int) Mathf.Round((beginningSpline.vertsInShape - 1) * (beginningMaxWidth - beginningMinWidth) + 1);
+            (int)Mathf.Round((beginningSpline.vertsInShape - 1) * (beginningMaxWidth - beginningMinWidth) + 1);
         if (vertsInShape < 1)
             vertsInShape = 1;
 
@@ -427,7 +426,7 @@ public class RamSpline : MonoBehaviour
     {
         if (beginningSpline == null)
         {
-            vertsInShape = (int) Mathf.Round((endingSpline.vertsInShape - 1) * (endingMaxWidth - endingMinWidth) + 1);
+            vertsInShape = (int)Mathf.Round((endingSpline.vertsInShape - 1) * (endingMaxWidth - endingMinWidth) + 1);
             if (vertsInShape < 1)
                 vertsInShape = 1;
         }
@@ -446,7 +445,7 @@ public class RamSpline : MonoBehaviour
 
     public void GenerateSpline(List<RamSpline> generatedSplines = null)
     {
-        
+
         generatedSplines ??= new List<RamSpline>();
 
         if (beginningSpline != null && beginningSpline.endingSpline != null)
@@ -478,7 +477,7 @@ public class RamSpline : MonoBehaviour
         {
             if (i > 0)
             {
-                if (Vector3.Distance((Vector3) controlPoints[i], (Vector3) controlPoints[i - 1]) > 0)
+                if (Vector3.Distance((Vector3)controlPoints[i], (Vector3)controlPoints[i - 1]) > 0)
                     pointsChecked.Add(controlPoints[i]);
             }
             else
@@ -951,7 +950,7 @@ public class RamSpline : MonoBehaviour
         {
             float width = widths[i];
             if (i > 0)
-                fulllength += uvWidth * Vector3.Distance(pointsDown[i], pointsDown[i - 1]) / (float) (uvScale * width);
+                fulllength += uvWidth * Vector3.Distance(pointsDown[i], pointsDown[i - 1]) / (float)(uvScale * width);
         }
 
         Terrain checkTerrain = null;
@@ -965,7 +964,7 @@ public class RamSpline : MonoBehaviour
 
             if (i > 0)
             {
-                length += (uvWidth * Vector3.Distance(pointsDown[i], pointsDown[i - 1]) / (float) (uvScale * width)) /
+                length += (uvWidth * Vector3.Distance(pointsDown[i], pointsDown[i - 1]) / (float)(uvScale * width)) /
                     fulllength * roundEnding;
             }
 
@@ -979,7 +978,7 @@ public class RamSpline : MonoBehaviour
                 int id = offset + j;
 
                 //VERTICES
-                float pos = j / (float) (vertsInShape - 1);
+                float pos = j / (float)(vertsInShape - 1);
 
                 if (pos < 0.5f)
                     pos *= minVal * 2;
@@ -990,7 +989,7 @@ public class RamSpline : MonoBehaviour
                 if (i == 0 && beginningSpline != null && beginningSpline.verticesEnding != null &&
                     beginningSpline.normalsEnding != null)
                 {
-                    int pos2 = (int) (beginningSpline.vertsInShape * beginningMinWidth);
+                    int pos2 = (int)(beginningSpline.vertsInShape * beginningMinWidth);
 
                     vertices[id] =
                         beginningSpline.verticesEnding[
@@ -1002,7 +1001,7 @@ public class RamSpline : MonoBehaviour
                 else if (i == pointsDown.Count - 1 && endingSpline != null && endingSpline.verticesBeginning != null &&
                          endingSpline.verticesBeginning.Count > 0 && endingSpline.normalsBeginning != null)
                 {
-                    int pos2 = (int) (endingSpline.vertsInShape * endingMinWidth);
+                    int pos2 = (int)(endingSpline.vertsInShape * endingMinWidth);
 
                     vertices[id] =
                         endingSpline.verticesBeginning[
@@ -1126,7 +1125,7 @@ public class RamSpline : MonoBehaviour
                             j >= Mathf.CeilToInt(item.endingMinWidth * (vertsInShape - 1)))
                         {
                             lerpUv4u = (j - Mathf.CeilToInt(item.endingMinWidth * (vertsInShape - 1)))
-                                       / (float) (Mathf.CeilToInt(item.endingMaxWidth * (vertsInShape - 1)) -
+                                       / (float)(Mathf.CeilToInt(item.endingMaxWidth * (vertsInShape - 1)) -
                                                   Mathf.CeilToInt(item.endingMinWidth * (vertsInShape - 1)));
 
                             lerpUv4u = FlowCalculate(lerpUv4u, normals[id].y, vertices[id]);
@@ -1134,7 +1133,7 @@ public class RamSpline : MonoBehaviour
                     }
 
                     if (i > 0)
-                        uv4u = Mathf.Lerp(uv4u, lerpUv4u, 1 - (i / (float) lerpDistance));
+                        uv4u = Mathf.Lerp(uv4u, lerpUv4u, 1 - (i / (float)lerpDistance));
                     else
                         uv4u = lerpUv4u;
                 }
@@ -1152,7 +1151,7 @@ public class RamSpline : MonoBehaviour
                             j >= Mathf.CeilToInt(item.beginningMinWidth * (vertsInShape - 1)))
                         {
                             lerpUv4u = (j - Mathf.CeilToInt(item.beginningMinWidth * (vertsInShape - 1)))
-                                       / (float) (Mathf.CeilToInt(item.beginningMaxWidth * (vertsInShape - 1)) -
+                                       / (float)(Mathf.CeilToInt(item.beginningMaxWidth * (vertsInShape - 1)) -
                                                   Mathf.CeilToInt(item.beginningMinWidth * (vertsInShape - 1)));
 
                             lerpUv4u = FlowCalculate(lerpUv4u, normals[id].y, vertices[id]);
@@ -1161,18 +1160,18 @@ public class RamSpline : MonoBehaviour
 
                     if (i < pointsDown.Count - 1)
                         uv4u = Mathf.Lerp(uv4u, lerpUv4u,
-                            (i - (pointsDown.Count - lerpDistance - 1)) / (float) lerpDistance);
+                            (i - (pointsDown.Count - lerpDistance - 1)) / (float)lerpDistance);
                     else
                         uv4u = lerpUv4u;
                 }
 
                 float uv4v = -(u3 - 0.5f) * 0.01f;
 
-                uv3length = length / (float) fulllength;
+                uv3length = length / (float)fulllength;
 
                 if (beginningSpline != null)
                 {
-                    uv3length = (length - beginningSpline.length) / (float) fulllength + beginningSpline.uv3length;
+                    uv3length = (length - beginningSpline.length) / (float)fulllength + beginningSpline.uv3length;
 
                     // Debug.Log(uv3length + " " + beginningSpline.uv3length + " " + length + " " + fulllength);
                 }
@@ -1182,7 +1181,7 @@ public class RamSpline : MonoBehaviour
                 {
                     if (beginningSplines == null) continue;
 
-                    uv3length = (length) / (float) fulllength + beginningSplines.uv3length;
+                    uv3length = (length) / (float)fulllength + beginningSplines.uv3length;
                     break;
                 }
 
@@ -1218,9 +1217,9 @@ public class RamSpline : MonoBehaviour
                     }
                 }
 
-                float tempRound = (int) (uvs4[id].x * 100);
+                float tempRound = (int)(uvs4[id].x * 100);
                 uvs4[id].x = tempRound * 0.01f;
-                tempRound = (int) (uvs4[id].y * 100);
+                tempRound = (int)(uvs4[id].y * 100);
                 uvs4[id].y = tempRound * 0.01f;
 
 
@@ -1304,7 +1303,7 @@ public class RamSpline : MonoBehaviour
 
 
         GetComponent<MeshRenderer>().enabled = false;
-        int verticesLinesPart = Mathf.RoundToInt((vertices.Length / vertsInShape) / (float) meshPartsCount);
+        int verticesLinesPart = Mathf.RoundToInt((vertices.Length / vertsInShape) / (float)meshPartsCount);
 
         int verticesInPart = verticesLinesPart * vertsInShape;
 
@@ -1444,12 +1443,12 @@ public class RamSpline : MonoBehaviour
         RaycastHit hit;
 
 
-        Vector3 lastPosition = transform.TransformPoint((Vector3) controlPoints[controlPoints.Count - 1]);
+        Vector3 lastPosition = transform.TransformPoint((Vector3)controlPoints[controlPoints.Count - 1]);
 
         List<Vector3> positionsGenerated = new List<Vector3>();
         if (controlPoints.Count > 1)
         {
-            positionsGenerated.Add(transform.TransformPoint((Vector3) controlPoints[controlPoints.Count - 2]));
+            positionsGenerated.Add(transform.TransformPoint((Vector3)controlPoints[controlPoints.Count - 2]));
             positionsGenerated.Add(lastPosition);
         }
 
@@ -1698,7 +1697,7 @@ public class RamSpline : MonoBehaviour
         Vector3 rayPointUp;
         Vector3 point;
 
-        int detailTerrain = (int) terrainMeshSmoothZ;
+        int detailTerrain = (int)terrainMeshSmoothZ;
 
         if (differentSize == 0)
             terrainAdditionalWidth = distSmooth + distSmoothStart;
@@ -1730,7 +1729,7 @@ public class RamSpline : MonoBehaviour
             {
                 for (int t = 0; t < detailTerrain; t++)
                 {
-                    point = Vector3.Lerp(rayPointDownNew, rayPointDown, t / (float) detailTerrain) +
+                    point = Vector3.Lerp(rayPointDownNew, rayPointDown, t / (float)detailTerrain) +
                             transform.position;
                     if (Physics.Raycast(point + Vector3.up * 500, Vector3.down, out hit, 10000, maskCarve.value))
                     {
@@ -1740,12 +1739,12 @@ public class RamSpline : MonoBehaviour
                         else
                             noise = 0;
 
-                        float evaluate = 1 - t / (float) detailTerrain;
+                        float evaluate = 1 - t / (float)detailTerrain;
                         evaluate *= terrainAdditionalWidth;
                         float height = point.y + terrainCarve.Evaluate(-evaluate) +
                                        terrainCarve.Evaluate(-evaluate) * noise;
 
-                        float smoothValue = t / (float) detailTerrain;
+                        float smoothValue = t / (float)detailTerrain;
                         smoothValue = Mathf.Pow(smoothValue, terrainSmoothMultiplier);
 
 
@@ -1761,7 +1760,7 @@ public class RamSpline : MonoBehaviour
 
             for (int t = 0; t <= detailTerrain; t++)
             {
-                point = Vector3.Lerp(rayPointDown, rayPointUp, t / (float) detailTerrain) + transform.position;
+                point = Vector3.Lerp(rayPointDown, rayPointUp, t / (float)detailTerrain) + transform.position;
                 if (Physics.Raycast(point + Vector3.up * 500, Vector3.down, out hit, 10000, maskCarve.value))
                 {
                     if (noiseCarve)
@@ -1770,11 +1769,11 @@ public class RamSpline : MonoBehaviour
                     else
                         noise = 0;
 
-                    float evaluate = diffMagintude * (0.5f - Mathf.Abs(0.5f - t / (float) detailTerrain));
+                    float evaluate = diffMagintude * (0.5f - Mathf.Abs(0.5f - t / (float)detailTerrain));
                     float height = point.y + terrainCarve.Evaluate(evaluate) +
                                    terrainCarve.Evaluate(evaluate) * noise;
 
-                    float smoothValue = 1 - 2 * Mathf.Abs(t / (float) detailTerrain - 0.5f);
+                    float smoothValue = 1 - 2 * Mathf.Abs(t / (float)detailTerrain - 0.5f);
                     smoothValue = Mathf.Pow(smoothValue, terrainSmoothMultiplier);
 
                     height = Mathf.Lerp(hit.point.y, height, 1);
@@ -1792,7 +1791,7 @@ public class RamSpline : MonoBehaviour
             {
                 for (int t = 1; t <= detailTerrain; t++)
                 {
-                    point = Vector3.Lerp(rayPointUp, rayPointUpNew, t / (float) detailTerrain) + transform.position;
+                    point = Vector3.Lerp(rayPointUp, rayPointUpNew, t / (float)detailTerrain) + transform.position;
                     if (Physics.Raycast(point + Vector3.up * 50, Vector3.down, out hit, 10000, maskCarve.value))
                     {
                         if (noiseCarve)
@@ -1801,13 +1800,13 @@ public class RamSpline : MonoBehaviour
                         else
                             noise = 0;
 
-                        float evaluate = t / (float) detailTerrain;
+                        float evaluate = t / (float)detailTerrain;
                         evaluate *= terrainAdditionalWidth;
 
                         float height = point.y + terrainCarve.Evaluate(-evaluate) +
                                        terrainCarve.Evaluate(-evaluate) * noise;
 
-                        float smoothValue = 1 - t / (float) detailTerrain;
+                        float smoothValue = 1 - t / (float)detailTerrain;
                         smoothValue = Mathf.Pow(smoothValue, terrainSmoothMultiplier);
 
                         height = Mathf.Lerp(hit.point.y, height, smoothValue);
@@ -1907,8 +1906,8 @@ public class RamSpline : MonoBehaviour
             float sizeX = terrain.terrainData.size.x;
             float sizeY = terrain.terrainData.size.y;
             float sizeZ = terrain.terrainData.size.z;
-            float terrainTowidth = (1 / (float) sizeZ * (terrainData.heightmapResolution - 1));
-            float terrainToheight = (1 / (float) sizeX * (terrainData.heightmapResolution - 1));
+            float terrainTowidth = (1 / (float)sizeZ * (terrainData.heightmapResolution - 1));
+            float terrainToheight = (1 / (float)sizeX * (terrainData.heightmapResolution - 1));
 
             float minX;
             float maxX;
@@ -2012,7 +2011,7 @@ public class RamSpline : MonoBehaviour
                 minX = Mathf.Floor(Mathf.Clamp(minX, 0, (terrainData.heightmapResolution)));
 
                 float[,] heightmapData =
-                    terrainData.GetHeights((int) minX, (int) minZ, (int) (maxX - minX), (int) (maxZ - minZ));
+                    terrainData.GetHeights((int)minX, (int)minZ, (int)(maxX - minX), (int)(maxZ - minZ));
 
                 Vector3 position = Vector3.zero;
                 Vector3 pointMin = Vector3.zero;
@@ -2022,8 +2021,8 @@ public class RamSpline : MonoBehaviour
                 {
                     for (int z = 0; z < heightmapData.GetLength(1); z++)
                     {
-                        position.x = (z + minX) / (float) terrainToheight + terrain.transform.position.x;
-                        position.z = (x + minZ) / (float) terrainTowidth + terrain.transform.position.z;
+                        position.x = (z + minX) / (float)terrainToheight + terrain.transform.position.x;
+                        position.z = (x + minZ) / (float)terrainTowidth + terrain.transform.position.z;
 
 
                         Ray ray = new Ray(position + Vector3.up * 3000, Vector3.down);
@@ -2031,7 +2030,7 @@ public class RamSpline : MonoBehaviour
                         if (meshCollider.Raycast(ray, out hit, 10000))
                         {
                             float height = hit.point.y - posY;
-                            heightmapData[x, z] = height / (float) sizeY;
+                            heightmapData[x, z] = height / (float)sizeY;
 
                             if (debugLines)
                             {
@@ -2041,7 +2040,7 @@ public class RamSpline : MonoBehaviour
                     }
                 }
 
-                terrainData.SetHeightsDelayLOD((int) minX, (int) minZ, heightmapData);
+                terrainData.SetHeightsDelayLOD((int)minX, (int)minZ, heightmapData);
             }
 
             DestroyImmediate(meshCollider);
@@ -2070,8 +2069,8 @@ public class RamSpline : MonoBehaviour
             float sizeX = terrain.terrainData.size.x;
             float sizeY = terrain.terrainData.size.y;
             float sizeZ = terrain.terrainData.size.z;
-            float terrainTowidth = (1 / (float) sizeZ * (terrainData.alphamapWidth - 1));
-            float terrainToheight = (1 / (float) sizeX * (terrainData.alphamapHeight - 1));
+            float terrainTowidth = (1 / (float)sizeZ * (terrainData.alphamapWidth - 1));
+            float terrainToheight = (1 / (float)sizeX * (terrainData.alphamapHeight - 1));
 
 
 #if UNITY_EDITOR
@@ -2178,7 +2177,7 @@ public class RamSpline : MonoBehaviour
                 maxZ = Mathf.Ceil(Mathf.Clamp(maxZ + 1, 0, (terrainData.alphamapHeight)));
 
                 float[,,] alphamapData =
-                    terrainData.GetAlphamaps((int) minX, (int) minZ, (int) (maxX - minX), (int) (maxZ - minZ));
+                    terrainData.GetAlphamaps((int)minX, (int)minZ, (int)(maxX - minX), (int)(maxZ - minZ));
 
                 if (alphamapData.GetLength(2) <= currentSplatMap)
                 {
@@ -2197,8 +2196,8 @@ public class RamSpline : MonoBehaviour
                 {
                     for (int z = 0; z < alphamapData.GetLength(1); z++)
                     {
-                        position.x = (z + minX) / (float) terrainToheight + terrain.transform.position.x;
-                        position.z = (x + minZ) / (float) terrainTowidth + terrain.transform.position.z;
+                        position.x = (z + minX) / (float)terrainToheight + terrain.transform.position.x;
+                        position.z = (x + minZ) / (float)terrainTowidth + terrain.transform.position.z;
 
 
                         Ray ray = new Ray(position + Vector3.up * 3000, Vector3.down);
@@ -2348,7 +2347,7 @@ public class RamSpline : MonoBehaviour
                 }
 
 
-                terrainData.SetAlphamaps((int) minX, (int) minZ, alphamapData);
+                terrainData.SetAlphamaps((int)minX, (int)minZ, alphamapData);
             }
 
             DestroyImmediate(meshCollider);
@@ -2378,8 +2377,8 @@ public class RamSpline : MonoBehaviour
             float sizeX = terrain.terrainData.size.x;
             float sizeY = terrain.terrainData.size.y;
             float sizeZ = terrain.terrainData.size.z;
-            float terrainTowidth = (1 / (float) sizeZ * (terrainData.detailWidth));
-            float terrainToheight = (1 / (float) sizeX * (terrainData.detailHeight));
+            float terrainTowidth = (1 / (float)sizeZ * (terrainData.detailWidth));
+            float terrainToheight = (1 / (float)sizeX * (terrainData.detailHeight));
 
 
 #if UNITY_EDITOR
@@ -2505,16 +2504,16 @@ public class RamSpline : MonoBehaviour
                         //Debug.Log("DetailLayers");
                         for (int l = 0; l < terrainData.detailPrototypes.Length; l++)
                         {
-                            detailLayer = terrainData.GetDetailLayer((int) minX, (int) minZ, (int) (maxX - minX),
-                                (int) (maxZ - minZ), l);
+                            detailLayer = terrainData.GetDetailLayer((int)minX, (int)minZ, (int)(maxX - minX),
+                                (int)(maxZ - minZ), l);
                             //Debug.Log("DetailLayer " + l);
 
                             for (int x = 0; x < detailLayer.GetLength(0); x++)
                             {
                                 for (int z = 0; z < detailLayer.GetLength(1); z++)
                                 {
-                                    position.x = (z + minX) / (float) terrainToheight + terrain.transform.position.x;
-                                    position.z = (x + minZ) / (float) terrainTowidth + terrain.transform.position.z;
+                                    position.x = (z + minX) / (float)terrainToheight + terrain.transform.position.x;
+                                    position.z = (x + minZ) / (float)terrainTowidth + terrain.transform.position.z;
 
 
                                     Ray ray = new Ray(position + Vector3.up * 3000, Vector3.down);
@@ -2531,7 +2530,7 @@ public class RamSpline : MonoBehaviour
                             }
 
 
-                            terrainData.SetDetailLayer((int) minX, (int) minZ, l, detailLayer);
+                            terrainData.SetDetailLayer((int)minX, (int)minZ, l, detailLayer);
                         }
                     }
                 }

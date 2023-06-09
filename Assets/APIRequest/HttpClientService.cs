@@ -1,6 +1,5 @@
-﻿using System.Net.Http;
-using System.Threading;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System.Net.Http;
 
 namespace APIRequest
 {

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -64,10 +63,10 @@ public class RamBuoyancy : MonoBehaviour
                         //Debug.DrawLine(closestPoint, vertice, Color.red, 50);
 
 
-                       // Debug.Log(Vector3.Distance(closestPoint, vertice));
+                        // Debug.Log(Vector3.Distance(closestPoint, vertice));
                         if (Vector3.Distance(closestPoint, vertice) < float.Epsilon)
                         {
-                           // Debug.Log(vertice);
+                            // Debug.Log(vertice);
                             volumePoints.Add(transform.InverseTransformPoint(vertice));
                         }
 
@@ -78,7 +77,7 @@ public class RamBuoyancy : MonoBehaviour
 
         volumePointsMatrix = new Vector3[volumePoints.Count];
 
-        
+
 
     }
 
@@ -237,7 +236,7 @@ public class RamBuoyancy : MonoBehaviour
                 if (debug)
                     Debug.DrawRay(transform.position, rigidbody.angularVelocity * 5, Color.black);
             }
-            
+
             if (lakePolygon != null)
             {
                 Mesh meshLake = lakePolygon.meshfilter.sharedMesh;
@@ -250,12 +249,12 @@ public class RamBuoyancy : MonoBehaviour
                 Vector3 verticeDirection = new Vector3(uv4.x, 0, uv4.y);// Vector3.forward * uv4.y + new Vector3(0, 0, 1) * uv4.x;
 
                 rigidbody.AddForce(new Vector3(verticeDirection.x, 0, verticeDirection.z) * lakePolygon.floatSpeed);
-                
+
                 float singleStep = 1 * Time.deltaTime;
                 Vector3 newDirection = Vector3.RotateTowards(transform.forward, verticeDirection, singleStep, 0.0f);
                 transform.rotation = Quaternion.LookRotation(newDirection);
-                
-                
+
+
                 if (debug)
                     Debug.DrawRay(transform.position + Vector3.up, verticeDirection * 5, Color.red);
 

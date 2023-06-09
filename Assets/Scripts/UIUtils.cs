@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -11,11 +7,19 @@ namespace Assets.Scripts
 {
     public static class UIUtils
     {
+        public static bool MouseoverObject(GameObject gameObject)
+        {
+            RaycastHit hit;
+            Ray ray = GameObject.FindAnyObjectByType<Camera>().ScreenPointToRay(Input.mousePosition);
+            return Physics.Raycast(ray, out hit) && hit.collider.gameObject.Equals(gameObject);
+        }
+
         ///Returns 'true' if we touched or hovering on Unity UI element.
         public static bool IsPointerOverUIElement()
         {
             return IsPointerOverUIElement(GetEventSystemRaycastResults());
         }
+
         ///Returns 'true' if we touched or hovering on Unity UI element.
         public static bool IsPointerOverUIElement(List<RaycastResult> eventSystemRaysastResults)
         {
@@ -27,11 +31,13 @@ namespace Assets.Scripts
             }
             return false;
         }
+
         public static bool IsPointerOverUIElementByName(string name)
         {
             var UIElem = GetEventSystemRaycastResults().FirstOrDefault(r => r.gameObject.name == name).gameObject;
             return UIElem != null && UIElem.name.Contains(name);
         }
+
         ///Gets all event systen raycast results of current mouse or touch position.
         static List<RaycastResult> GetEventSystemRaycastResults()
         {
@@ -40,6 +46,6 @@ namespace Assets.Scripts
             List<RaycastResult> raysastResults = new List<RaycastResult>();
             EventSystem.current.RaycastAll(eventData, raysastResults);
             return raysastResults;
-        }
+        }        
     }
 }

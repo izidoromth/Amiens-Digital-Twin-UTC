@@ -1,8 +1,4 @@
-using FastObjUnity.Editor;
 using FastObjUnity.Runtime;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.AssetImporters;
 using UnityEngine;
 
 public class ObjImport : MonoBehaviour

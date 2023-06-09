@@ -1,6 +1,4 @@
-using Assets.Scripts;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -22,6 +20,8 @@ public class UIManager : MonoBehaviour
     public Button Speed5x;
     public Button Speed10x;
     public TMP_Dropdown CasiersDropdown;
+    public Slider ThresholdSlider;
+    public TextMeshProUGUI PumpLabel;
 
     TwinManager manager;
     int selectedSpeed;
@@ -41,6 +41,7 @@ public class UIManager : MonoBehaviour
         Speed5x.onClick.AddListener(delegate () { SpeedSelected(5); });
         Speed10x.onClick.AddListener(delegate () { SpeedSelected(10); });
         PlayButton.onClick.AddListener(delegate () { PlaySimulation(); });
+        ThresholdSlider.onValueChanged.AddListener(delegate (float val) { ThresholdChanged(val); });
         List<TMP_Dropdown.OptionData> casierOptions = new List<TMP_Dropdown.OptionData>
         {
             new TMP_Dropdown.OptionData() { text = "Non" }
@@ -49,6 +50,12 @@ public class UIManager : MonoBehaviour
             casierOptions.Add(new TMP_Dropdown.OptionData() { text = sector });
         CasiersDropdown.options = casierOptions;
         CasiersDropdown.onValueChanged.AddListener(delegate (int val) { CasierSelected(val); });
+    }
+
+    public void ClearChartData()
+    {
+        LineChart.RemoveAllSerie();
+        LineChart.AddSerie<Line>();
     }
 
     void CreateWaterLevelLineChart()
@@ -107,7 +114,7 @@ public class UIManager : MonoBehaviour
             Millenale.isOn = false;
         }
 
-        if(val)
+        if (val)
             manager.SelectedFloodYear = 1994;
 
         PlayButton.image.color = selectedSpeed != 0 && (Millenale.isOn || Decennale.isOn) ? new Color(.12f, .78f, .51f) : new Color(.82f, .82f, .82f);
@@ -161,6 +168,12 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    void ThresholdChanged(float val)
+    {
+        manager.FloodThreshold = (float)Math.Round(val, 1);
+        PumpLabel.text = $"{manager.FloodThreshold}m";
+    }
+
     void CasierSelected(int val)
     {
         manager.SelectedPumpCasier = CasiersDropdown.options[val].text;
@@ -169,17 +182,20 @@ public class UIManager : MonoBehaviour
     void PlaySimulation()
     {
         if (!manager.Playing && selectedSpeed != 0 && (Millenale.isOn || Decennale.isOn))
-        {       
+        {
             manager.PlaySimulation(selectedSpeed);
-            CreateWaterLevelLineChart();
+            if(manager.SelectedPumpCasier != "Non")
+                CreateWaterLevelLineChart();
             OpenCloseParametersClicked();
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Finir la simulation";
+            ChangeComponentsInteractable(false);
         }
         else if (manager.Playing)
         {
             manager.StopSimulation();
             Destroy(WaterLevelLineChart.gameObject);
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Lancer la simulation";
+            ChangeComponentsInteractable(true);
         }
         ModifyPlayButtonProperties(manager.Playing);
     }
@@ -190,5 +206,18 @@ public class UIManager : MonoBehaviour
             PlayButton.image.color = new Color(1f, 0f, 0f);
         else
             PlayButton.image.color = selectedSpeed != 0 && (Millenale.isOn || Decennale.isOn) ? new Color(.12f, .78f, .51f) : new Color(.82f, .82f, .82f);
+    }
+
+    void ChangeComponentsInteractable(bool state)
+    {
+        Millenale.interactable = state;
+        Decennale.interactable = state;
+        Actuel.interactable = state;
+        Future.interactable = state;
+        Speed2x.interactable = state;
+        Speed5x.interactable = state;
+        Speed10x.interactable = state;
+        ThresholdSlider.interactable = state;
+        CasiersDropdown.interactable = state;
     }
 }

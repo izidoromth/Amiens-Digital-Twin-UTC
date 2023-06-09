@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class UIElementBlink : MonoBehaviour
@@ -20,7 +18,7 @@ public class UIElementBlink : MonoBehaviour
 
     void Update()
     {
-        canvasGroup.alpha = Mathf.Abs(Mathf.Sin(speed*time));
+        canvasGroup.alpha = Mathf.Abs(Mathf.Sin(speed * time));
         time += Time.deltaTime;
     }
 }

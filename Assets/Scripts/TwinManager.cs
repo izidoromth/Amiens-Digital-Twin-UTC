@@ -1,22 +1,12 @@
-using Assets.Scripts;
+using DatabaseConnection.Context;
+using DatabaseConnection.Entities;
 using Dummiesman;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Runtime.Serialization;
 using UnityEngine;
-using UnityEngine.UI;
-using DatabaseConnection;
-using DatabaseConnection.Entities;
-using DatabaseConnection.Context;
-using static TreeEditor.TextureAtlas;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System.Globalization;
-using static System.Net.Mime.MediaTypeNames;
 using XCharts.Runtime;
 
 public class TwinManager : MonoBehaviour
@@ -43,6 +33,8 @@ public class TwinManager : MonoBehaviour
         { "KF03", 23.3f }
     };
 
+    Dictionary<int, Dictionary<string, float>> minCasier = new Dictionary<int, Dictionary<string, float>>();
+
     Dictionary<string, float> areaCasier = new Dictionary<string, float>()
     {
         { "KE02", 150830.717f },
@@ -66,10 +58,10 @@ public class TwinManager : MonoBehaviour
 
     public Component ActiveBuildingInfo;
     public bool Playing { get; set; }
-    public float FloodMaxThreshold { get; set; }
-    public float FloodMinThreshold { get; set; }
+    public float FloodThreshold { get; set; } = 0.25f;
     public int SelectedFloodYear { get; set; }
     public string SelectedPumpCasier { get; set; }
+    public float PumpValue { get; set; } = 100;
 
     void Start()
     {
@@ -79,7 +71,33 @@ public class TwinManager : MonoBehaviour
             "postgres", "12345678", "amiens_digital_twin", port: "5433");
 
         floodsPerYear.Add(1994, Context.WaterFloods.Where(f => f.Year == 1994).OrderBy(f => f.Time).ToList());
-        floodsPerYear.Add(9999, Context.WaterFloods.Where(f => f.Year == 1994).OrderBy(f => f.Time).ToList());
+        floodsPerYear.Add(9999, Context.WaterFloods.Where(f => f.Year == 9999).OrderBy(f => f.Time).ToList());
+
+        Dictionary<string, float> auxDict = new Dictionary<string, float>()
+        {
+            { "KE02", 0f },
+            { "KE03", 0f },
+            { "KE06", 0f },
+            { "KE07", 0f },
+            { "KE08", 0f },
+            { "KE10", 0f },
+            { "KE11", 0f },
+            { "KE12", 0f },
+            { "KE14", 0f },
+            { "KF00", 0f },
+            { "KF01", 0f },
+            { "KF02", 0f },
+            { "KF03", 0f }
+        };
+
+        foreach (KeyValuePair<int, List<WaterFlood>> entry in floodsPerYear)
+        {
+            foreach (KeyValuePair<string, float> entry2 in new Dictionary<string, float>(auxDict))
+            {
+                auxDict[entry2.Key] = floodsPerYear[entry.Key].Where(f => f.SectorId == entry2.Key).Min(f => f.Level.Value);
+            }
+            minCasier.Add(entry.Key, auxDict);
+        }
 
         // Instantiate city objects
         InstantiateFloodSectors();
@@ -94,7 +112,7 @@ public class TwinManager : MonoBehaviour
 
     void InstantiateFloodSectors()
     {
-        foreach(FloodSector sector in Context.FloodSectors.ToList())
+        foreach (FloodSector sector in Context.FloodSectors.ToList())
         {
             GameObject floodSectorGameObject = LoadFromGeometry(sector.Geometry, sector.SectorId);
 
@@ -104,6 +122,7 @@ public class TwinManager : MonoBehaviour
             // add mesh collider to detect flood
             GameObject floodSector = floodSectorGameObject.transform.GetChild(0).gameObject;
             floodSector.AddComponent<MeshCollider>();
+            floodSector.AddComponent<HandleFloodSectorInfo>();
 
             // change material to make it transparent
             Material objectMaterial = new Material(Shader.Find("Standard"));
@@ -119,23 +138,36 @@ public class TwinManager : MonoBehaviour
 
     void InstantiateBuildings()
     {
-        foreach (Building building in Context.Buildings.ToList())
+        var count = 0;
+        var nulls = 0;
+        foreach (BuildingNoGeom building in Context.BuildingsNoGeom.ToList())
         {
-            GameObject buildingGameObject =  LoadFromGeometry(building.Geometry, building.Id, "Buildings.jpg");
+            count++;
+            Debug.Log(building.Id);
+            GameObject buildingGameObject = GameObject.Find(building.Id);
+            if (buildingGameObject == null)
+            {
+                nulls++;
+                continue;
+            }
 
-            Outline outline = buildingGameObject.transform.GetChild(0).gameObject.AddComponent<Outline>();
+            Outline outline = buildingGameObject.AddComponent<Outline>();
             outline.enabled = false;
             outline.OutlineWidth = 8;
 
             buildingGameObject.SetActive(false);
-            HandleBuildingInfo buildingInfoComponent =  buildingGameObject.transform.GetChild(0).gameObject.AddComponent<HandleBuildingInfo>();
+            HandleBuildingInfo buildingInfoComponent = buildingGameObject.AddComponent<HandleBuildingInfo>();
             buildingInfoComponent.BuildingInfo = building;
-            MeshCollider buildingMeshCollider = buildingGameObject.transform.GetChild(0).gameObject.AddComponent<MeshCollider>();
-            Rigidbody buildingRigidbody = buildingGameObject.transform.GetChild(0).gameObject.AddComponent<Rigidbody>();
+            if (buildingGameObject.name.Contains("3454128"))
+            {
+                buildingGameObject.SetActive(true);
+                continue;
+            }
+            MeshCollider buildingMeshCollider = buildingGameObject.AddComponent<MeshCollider>();
+            Rigidbody buildingRigidbody = buildingGameObject.AddComponent<Rigidbody>();
             buildingRigidbody.useGravity = false;
             buildingRigidbody.isKinematic = true;
             buildingGameObject.SetActive(true);
-
             buildingMeshCollider.convex = true;
             buildingMeshCollider.isTrigger = true;
         }
@@ -145,10 +177,10 @@ public class TwinManager : MonoBehaviour
     {
         foreach (DatabaseConnection.Entities.Terrain terrain in Context.Terrains.ToList())
         {
-            LoadFromGeometry(terrain.Geometry, terrain.Id.ToString(),"Terrain.png");
+            LoadFromGeometry(terrain.Geometry, terrain.Id.ToString(), "Terrain.png");
         }
     }
-    
+
     GameObject LoadFromGeometry(byte[] geometry, string id, string texture_name = "")
     {
         MemoryStream stream = new MemoryStream(geometry);
@@ -180,8 +212,9 @@ public class TwinManager : MonoBehaviour
     {
         Playing = false;
         pumping = false;
-        foreach (GameObject floodSector in floodSectorGameObjects) {
-            floodSector.SetActive(false); 
+        foreach (GameObject floodSector in floodSectorGameObjects)
+        {
+            floodSector.SetActive(false);
         }
         SelectedFlood = floodsPerYear[SelectedFloodYear].ToList();
         aux = new List<WaterFlood>();
@@ -190,36 +223,38 @@ public class TwinManager : MonoBehaviour
     void UpdateWaterLevel()
     {
         int time = 0;
-        float chartHeight = 0;
+
+        UIManager UIManager = GameObject.Find("UI").GetComponent<UIManager>();
+        Serie serie = UIManager.LineChart.series[0];
         foreach (GameObject floodSector in floodSectorGameObjects)
         {
             var floodSectorData = SelectedFlood.FirstOrDefault(f => f.SectorId.Equals(floodSector.name));
-            if(floodSectorData == null)
+            if (floodSectorData == null)
             {
-                SelectedFlood = aux;
-                return;
+                SelectedFlood = aux.ToList();
+                aux.Clear();
+                break;
             }
-            float newHeight = SelectedPumpCasier == floodSector.name ? floodSectorData.Level.Value - (0 * 2 / areaCasier[floodSector.name]) : floodSectorData.Level.Value;
+            float currHeight = floodSectorData.Level.Value - minCasier[SelectedFloodYear][floodSector.name];
+            bool thresholdReached = SelectedPumpCasier == floodSector.name && currHeight > FloodThreshold;
 
-            if(SelectedPumpCasier == floodSector.name)
-                chartHeight = newHeight;
+            float noise = 0.01f*Mathf.Sin(0.005f*floodSectorData.Time.Value);
+            float newHeight = thresholdReached ? FloodThreshold + noise : currHeight;
 
             Transform floodSectorTransform = floodSector.transform.GetChild(0).transform;
-            floodSectorTransform.position = new Vector3(floodSectorTransform.position.x, newHeight, floodSectorTransform.position.z);
+            floodSectorTransform.position = new Vector3(floodSectorTransform.position.x, newHeight + fondCasier[floodSector.name], floodSectorTransform.position.z);
 
-            time = floodSectorData.Time.Value;
+            time = floodSectorData.Time.Value; 
+            if (SelectedPumpCasier == floodSector.name)
+            {
+                serie.AddXYData(time, Math.Round(newHeight, 3));
+            }
 
             aux.Add(floodSectorData);
             SelectedFlood.Remove(floodSectorData);
         }
-        UIManager UIManager = GameObject.Find("UI").GetComponent<UIManager>();
-        Serie serie = UIManager.LineChart.series[0];
-        if(serie.dataCount > 500)
-        {
-            for (int i = 0; i < serie.dataCount - 500; i++)
-                serie.RemoveData(i);
-        }
-        serie.AddXYData(time, Math.Round(chartHeight, 3));
+        if(aux.Count == 0)
+            UIManager.ClearChartData();
     }
 
     void HandleInputs()

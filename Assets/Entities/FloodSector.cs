@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DatabaseConnection.Entities
+﻿namespace DatabaseConnection.Entities
 {
     public class FloodSector
     {
