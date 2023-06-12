@@ -2,10 +2,12 @@ using DatabaseConnection.Context;
 using DatabaseConnection.Entities;
 using Dummiesman;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using XCharts.Runtime;
 
@@ -66,9 +68,16 @@ public class TwinManager : MonoBehaviour
     void Start()
     {
         // Connect to the database
-        Context = DbConnectionContext.GetContext<AmiensDigitalTwinDbContext>(
+        try
+        {
+            Context = DbConnectionContext.GetContext<AmiensDigitalTwinDbContext>(
             (options, defaultSchema) => { return new AmiensDigitalTwinDbContext(options, defaultSchema); },
             "postgres", "12345678", "amiens_digital_twin", port: "5433");
+        }
+        catch (Exception ex)
+        {
+            Debug.Log(ex.Message);
+        }
 
         floodsPerYear.Add(1994, Context.WaterFloods.Where(f => f.Year == 1994).OrderBy(f => f.Time).ToList());
         floodsPerYear.Add(9999, Context.WaterFloods.Where(f => f.Year == 9999).OrderBy(f => f.Time).ToList());
@@ -103,6 +112,8 @@ public class TwinManager : MonoBehaviour
         InstantiateFloodSectors();
         InstantiateBuildings();
         InstantiateTerrains();
+
+        Debug.Log($"[{System.DateTime.Now}] ADTLog: Loading finished successfully");
     }
 
     void Update()
@@ -138,38 +149,37 @@ public class TwinManager : MonoBehaviour
 
     void InstantiateBuildings()
     {
-        var count = 0;
-        var nulls = 0;
         foreach (BuildingNoGeom building in Context.BuildingsNoGeom.ToList())
         {
-            count++;
-            Debug.Log(building.Id);
-            GameObject buildingGameObject = GameObject.Find(building.Id);
-            if (buildingGameObject == null)
+            try
             {
-                nulls++;
-                continue;
-            }
+                GameObject buildingGameObject = GameObject.Find(building.Id);
+                if (buildingGameObject == null)
+                    continue;
 
-            Outline outline = buildingGameObject.AddComponent<Outline>();
-            outline.enabled = false;
-            outline.OutlineWidth = 8;
+                Outline outline = buildingGameObject.AddComponent<Outline>();
+                outline.enabled = false;
+                outline.OutlineWidth = 8;
 
-            buildingGameObject.SetActive(false);
-            HandleBuildingInfo buildingInfoComponent = buildingGameObject.AddComponent<HandleBuildingInfo>();
-            buildingInfoComponent.BuildingInfo = building;
-            if (buildingGameObject.name.Contains("3454128"))
-            {
+                buildingGameObject.SetActive(false);
+                HandleBuildingInfo buildingInfoComponent = buildingGameObject.AddComponent<HandleBuildingInfo>();
+                buildingInfoComponent.BuildingInfo = building; if (buildingGameObject.name.Contains("3454128"))
+                {
+                    buildingGameObject.SetActive(true);
+                    continue;
+                }
+                MeshCollider buildingMeshCollider = buildingGameObject.AddComponent<MeshCollider>();
+                Rigidbody buildingRigidbody = buildingGameObject.AddComponent<Rigidbody>();
+                buildingRigidbody.useGravity = false;
+                buildingRigidbody.isKinematic = true;
                 buildingGameObject.SetActive(true);
-                continue;
+                buildingMeshCollider.convex = true;
+                buildingMeshCollider.isTrigger = true;
             }
-            MeshCollider buildingMeshCollider = buildingGameObject.AddComponent<MeshCollider>();
-            Rigidbody buildingRigidbody = buildingGameObject.AddComponent<Rigidbody>();
-            buildingRigidbody.useGravity = false;
-            buildingRigidbody.isKinematic = true;
-            buildingGameObject.SetActive(true);
-            buildingMeshCollider.convex = true;
-            buildingMeshCollider.isTrigger = true;
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
         }
     }
 

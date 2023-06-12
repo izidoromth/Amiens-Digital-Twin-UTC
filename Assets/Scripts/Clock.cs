@@ -13,7 +13,6 @@ public class Clock : MonoBehaviour
         if (timeFixed % (60 * 60) < 1 && lastTimepoint != (int)timeFixed)
         {
             lastTimepoint = (int)(Time.realtimeSinceStartup * timeSpeed);
-            Debug.Log(++hoursPassed);
         }
     }
 }
