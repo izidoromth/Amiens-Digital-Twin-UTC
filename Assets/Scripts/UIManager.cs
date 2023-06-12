@@ -23,6 +23,7 @@ public class UIManager : MonoBehaviour
     public TMP_Dropdown CasiersDropdown;
     public Slider ThresholdSlider;
     public TextMeshProUGUI PumpLabel;
+    public Button CloseApp;
 
     TwinManager manager;
     int selectedSpeed;
@@ -43,6 +44,7 @@ public class UIManager : MonoBehaviour
         Speed5x.onClick.AddListener(delegate () { SpeedSelected(5); });
         Speed10x.onClick.AddListener(delegate () { SpeedSelected(10); });
         PlayButton.onClick.AddListener(delegate () { PlaySimulation(); });
+        CloseApp.onClick.AddListener(delegate () { Application.Quit(); });
         ThresholdSlider.onValueChanged.AddListener(delegate (float val) { ThresholdChanged(val); });
         List<TMP_Dropdown.OptionData> casierOptions = new List<TMP_Dropdown.OptionData>
         {
