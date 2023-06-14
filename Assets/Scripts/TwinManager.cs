@@ -13,6 +13,8 @@ using XCharts.Runtime;
 
 public class TwinManager : MonoBehaviour
 {
+    GameObject replacedBuilding;
+    List<GameObject> buildingsNew;
     List<GameObject> floodSectorGameObjects = new List<GameObject>();
     List<WaterFlood> aux = new List<WaterFlood>();
     Dictionary<int, List<WaterFlood>> floodsPerYear = new Dictionary<int, List<WaterFlood>>();
@@ -53,6 +55,11 @@ public class TwinManager : MonoBehaviour
         { "KF02", 32622.003f },
         { "KF03", 68127.322f }
     };
+
+    public GameObject StockageTerrain;
+    public GameObject MainTerrain;
+    public GameObject BatardeauxOn;
+    public GameObject BatardeauxOff;
 
     public AmiensDigitalTwinDbContext Context;
 
@@ -111,7 +118,7 @@ public class TwinManager : MonoBehaviour
         // Instantiate city objects
         InstantiateFloodSectors();
         InstantiateBuildings();
-        InstantiateTerrains();
+        //InstantiateTerrains();
 
         Debug.Log($"[{System.DateTime.Now}] ADTLog: Loading finished successfully");
     }
@@ -128,6 +135,7 @@ public class TwinManager : MonoBehaviour
             GameObject floodSectorGameObject = LoadFromGeometry(sector.Geometry, sector.SectorId);
 
             floodSectorGameObjects.Add(floodSectorGameObject);
+
             floodSectorGameObject.SetActive(false);
 
             // add mesh collider to detect flood
@@ -149,6 +157,9 @@ public class TwinManager : MonoBehaviour
 
     void InstantiateBuildings()
     {
+        buildingsNew = new List<GameObject>(GameObject.FindGameObjectsWithTag("BuildingsNew"));
+        foreach(GameObject building in buildingsNew) building.SetActive(false);
+
         foreach (BuildingNoGeom building in Context.BuildingsNoGeom.ToList())
         {
             try
@@ -157,13 +168,18 @@ public class TwinManager : MonoBehaviour
                 if (buildingGameObject == null)
                     continue;
 
+                if (buildingGameObject.name == "BATIMENT0000000224110574")
+                    replacedBuilding = buildingGameObject;
+
+                buildingGameObject.SetActive(false);
+
                 Outline outline = buildingGameObject.AddComponent<Outline>();
                 outline.enabled = false;
                 outline.OutlineWidth = 8;
 
-                buildingGameObject.SetActive(false);
                 HandleBuildingInfo buildingInfoComponent = buildingGameObject.AddComponent<HandleBuildingInfo>();
-                buildingInfoComponent.BuildingInfo = building; if (buildingGameObject.name.Contains("3454128"))
+                buildingInfoComponent.BuildingInfo = building; 
+                if (buildingGameObject.name.Contains("3454128"))
                 {
                     buildingGameObject.SetActive(true);
                     continue;
@@ -172,9 +188,10 @@ public class TwinManager : MonoBehaviour
                 Rigidbody buildingRigidbody = buildingGameObject.AddComponent<Rigidbody>();
                 buildingRigidbody.useGravity = false;
                 buildingRigidbody.isKinematic = true;
-                buildingGameObject.SetActive(true);
                 buildingMeshCollider.convex = true;
                 buildingMeshCollider.isTrigger = true;
+
+                buildingGameObject.SetActive(true);                
             }
             catch (Exception ex)
             {
@@ -221,6 +238,7 @@ public class TwinManager : MonoBehaviour
     public void StopSimulation()
     {
         Playing = false;
+        GameObject.Find("UI").GetComponent<UIManager>().DisableAlert();
         foreach (GameObject floodSector in floodSectorGameObjects)
         {
             floodSector.SetActive(false);
@@ -229,6 +247,25 @@ public class TwinManager : MonoBehaviour
         aux = new List<WaterFlood>();
         CancelInvoke(nameof(UpdateWaterLevel));
     }
+
+    public void ChangeAmenagementState(bool future)
+    {
+        foreach(GameObject building in buildingsNew) building.SetActive(future);
+        replacedBuilding.SetActive(!future);
+    }
+
+    public void ChangeTerrainState(bool stockage)
+    {
+        MainTerrain.SetActive(!stockage);
+        StockageTerrain.SetActive(stockage);
+    }
+
+    public void EnableBatardeaux(bool enabled)
+    {
+        BatardeauxOff.SetActive(!enabled);
+        BatardeauxOn.SetActive(enabled);
+    }
+
     void UpdateWaterLevel()
     {
         int time = 0;

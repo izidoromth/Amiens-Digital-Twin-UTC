@@ -70,7 +70,5 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
-Assets/Resources/All scénario Buildings.fbx*
-Assets/Resources/CurrentBuildings.prefab*
-Assets/Resources/Jumeau Existant V1.fbx*
-Assets/Resources/Terrain_Roads_Stockage.fbx*
+Assets/Resources/Terrain + route + Stockage V2.*
+Assets/Resources/Jumeau scénario V5.*

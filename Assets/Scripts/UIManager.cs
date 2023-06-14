@@ -20,6 +20,8 @@ public class UIManager : MonoBehaviour
     public Button Speed2x;
     public Button Speed5x;
     public Button Speed10x;
+    public Toggle Stockage;
+    public Toggle Batardeaux;
     public TMP_Dropdown CasiersDropdown;
     public Slider ThresholdSlider;
     public TextMeshProUGUI PumpLabel;
@@ -46,6 +48,8 @@ public class UIManager : MonoBehaviour
         PlayButton.onClick.AddListener(delegate () { PlaySimulation(); });
         CloseApp.onClick.AddListener(delegate () { Application.Quit(); });
         ThresholdSlider.onValueChanged.AddListener(delegate (float val) { ThresholdChanged(val); });
+        Stockage.onValueChanged.AddListener(delegate (bool val) { manager.ChangeTerrainState(val); });
+        Batardeaux.onValueChanged.AddListener(delegate (bool val) { manager.EnableBatardeaux(val); });  
         List<TMP_Dropdown.OptionData> casierOptions = new List<TMP_Dropdown.OptionData>
         {
             new TMP_Dropdown.OptionData() { text = "Non" }
@@ -140,18 +144,14 @@ public class UIManager : MonoBehaviour
 
     void ActuelSelected(bool val)
     {
-        if (val && Actuel.isOn)
-        {
-            Future.isOn = false;
-        }
+        Future.isOn = !val;
     }
 
     void FutureSelected(bool val)
     {
-        if (val && Future.isOn)
-        {
-            Actuel.isOn = false;
-        }
+        Actuel.isOn = !val;
+        manager.ChangeAmenagementState(val);
+        Batardeaux.interactable = val;
     }
 
     void SpeedSelected(int speed)
@@ -236,5 +236,7 @@ public class UIManager : MonoBehaviour
         Speed10x.interactable = state;
         ThresholdSlider.interactable = state;
         CasiersDropdown.interactable = state;
+        Stockage.interactable = state;
+        Batardeaux.interactable = state;
     }
 }

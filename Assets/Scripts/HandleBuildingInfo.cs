@@ -17,10 +17,12 @@ public class HandleBuildingInfo : MonoBehaviour
 
         if (UIUtils.MouseoverObject(gameObject))
         {
+            Debug.Log($"[{System.DateTime.Now}] ADTLog: {BuildingInfo.Id}");
+
             GetComponent<Outline>().enabled = true;
 
             if (Input.GetMouseButtonDown(0))
-            {
+            {                
                 Destroy(GameObject.FindGameObjectWithTag("BuildingInfo"));
                 GameObject buildingInfo = Instantiate((GameObject)Resources.Load("Prefabs/BuildingInfo", typeof(GameObject)));
                 buildingInfo.SetActive(false);
