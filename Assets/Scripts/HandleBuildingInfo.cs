@@ -10,6 +10,11 @@ public class HandleBuildingInfo : MonoBehaviour
     string floodSectorName;
     SetBuildingInfo setBuildingInfoComponent;
     public BuildingNoGeom BuildingInfo;
+    Color color;
+    void Start()
+    {
+        color = GetComponent<MeshRenderer>().material.color;
+    }
     void Update()
     {
         if (manager == null)
@@ -19,9 +24,9 @@ public class HandleBuildingInfo : MonoBehaviour
         {
             Debug.Log($"[{System.DateTime.Now}] ADTLog: {BuildingInfo.Id}");
 
-            GetComponent<Outline>().enabled = true;
+            GetComponent<Outline>().enabled = manager.Playing;
 
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonUp(0) && manager.Playing)
             {                
                 Destroy(GameObject.FindGameObjectWithTag("BuildingInfo"));
                 GameObject buildingInfo = Instantiate((GameObject)Resources.Load("Prefabs/BuildingInfo", typeof(GameObject)));
@@ -56,10 +61,13 @@ public class HandleBuildingInfo : MonoBehaviour
     {
         flooding = true;
         floodSectorName = other.transform.gameObject.name;
+        if(GameObject.FindGameObjectsWithTag("FloodSector").Where(fs => fs.name == other.gameObject.name).Count() > 0)
+            GetComponent<MeshRenderer>().material.SetColor("_Color", Color.red);
     }
     void OnTriggerExit(Collider other)
     {
         flooding = false;
+        GetComponent<MeshRenderer>().material.SetColor("_Color", color);
         if (setBuildingInfoComponent is not null)
             setBuildingInfoComponent.FloodHeight = "0";
     }

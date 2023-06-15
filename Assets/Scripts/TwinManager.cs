@@ -134,6 +134,8 @@ public class TwinManager : MonoBehaviour
         {
             GameObject floodSectorGameObject = LoadFromGeometry(sector.Geometry, sector.SectorId);
 
+            floodSectorGameObject.transform.tag = "FloodSector";
+
             floodSectorGameObjects.Add(floodSectorGameObject);
 
             floodSectorGameObject.SetActive(false);

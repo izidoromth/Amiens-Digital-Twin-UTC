@@ -7,7 +7,7 @@ public class CameraController : MonoBehaviour
     bool leftButtonPressed { get => Input.GetMouseButton(0); }
     bool scrollPressed { get => Input.GetMouseButton(2); }
     float sensivity = 2.5f;
-    float speed_multiplier = 0.05f;
+    float speed_multiplier = 0.1f;
     Vector3 xzPlanTransformVector = new Vector3(1, 0, 1);
     float x = 0;
     void Update()

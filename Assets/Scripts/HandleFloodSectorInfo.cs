@@ -19,7 +19,7 @@ public class HandleFloodSectorInfo : MonoBehaviour
 
     void Update()
     {
-        outline.enabled = UIUtils.MouseoverObject(gameObject) || twinManager.SelectedPumpCasier == gameObject.name;
+        //outline.enabled = UIUtils.MouseoverObject(gameObject) || twinManager.SelectedPumpCasier == gameObject.name;
     }
 
     void OnGUI()
