@@ -301,7 +301,6 @@ public class TwinManager : MonoBehaviour
                 SelectedFlood = aux.ToList();
                 uiManager.PlayOrStopSimulation();
                 uiManager.Parameters.SetActive(true);
-                uiManager.OpenCloseParametersClicked();
                 StopSimulation();
                 aux.Clear();
                 break;
@@ -344,6 +343,8 @@ public class TwinManager : MonoBehaviour
             aux.Add(floodSectorData);
             SelectedFlood.Remove(floodSectorData);
         }
+
+        uiManager.UpdateTimestamp(time);
 
         if(SelectedPumpCasier == "Non")
         {

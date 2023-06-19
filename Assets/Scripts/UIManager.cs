@@ -29,6 +29,7 @@ public class UIManager : MonoBehaviour
     public Image SimControl;
     public UnityEngine.Sprite play;
     public UnityEngine.Sprite pause;
+    public TextMeshProUGUI Timestamp;
 
     TwinManager manager;
     public int selectedSpeed { get; set; }
@@ -126,6 +127,12 @@ public class UIManager : MonoBehaviour
         Parameters.SetActive(!Parameters.activeSelf);
     }
 
+    public void UpdateTimestamp(int minutes)
+    {
+        TimeSpan t = TimeSpan.FromMinutes(minutes);
+        Timestamp.text = string.Format("{0:D2}d {1:D2}h {2:D2}m", t.Days, t.Hours, t.Minutes);
+    }
+
     void MillenaleSelected(bool val)
     {
         if (val && Decennale.isOn)
@@ -217,15 +224,19 @@ public class UIManager : MonoBehaviour
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Finir la simulation";
             ChangeComponentsInteractable(false);
             SimControl.gameObject.SetActive(true);
+            Timestamp.gameObject.transform.parent.gameObject.SetActive(true);
         }
         else if (manager.Playing)
         {
             manager.StopSimulation();
             Destroy(WaterLevelLineChart.gameObject);
+            Parameters.SetActive(true);
+            ParametersLabel.text = "<";
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Lancer la simulation";
             ChangeComponentsInteractable(true);
             SimControl.gameObject.SetActive(false);
             SimControl.sprite = pause;
+            Timestamp.gameObject.transform.parent.gameObject.SetActive(false);
         }
         ModifyPlayButtonProperties(manager.Playing);
     }
