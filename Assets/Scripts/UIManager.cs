@@ -26,9 +26,12 @@ public class UIManager : MonoBehaviour
     public Slider ThresholdSlider;
     public TextMeshProUGUI PumpLabel;
     public Button CloseApp;
+    public Image SimControl;
+    public UnityEngine.Sprite play;
+    public UnityEngine.Sprite pause;
 
     TwinManager manager;
-    int selectedSpeed;
+    public int selectedSpeed { get; set; }
 
     public GameObject WaterLevelLineChart;
     LineChart lineChart;
@@ -37,6 +40,7 @@ public class UIManager : MonoBehaviour
     {
         manager = GameObject.Find("TwinManager").GetComponent<TwinManager>();
 
+        SimControl.GetComponent<ImagePointer>().OnPointerClickEvent += SimControlClicked;
         OpenCloseParameters.onClick.AddListener(delegate () { OpenCloseParametersClicked(); });
         Millenale.onValueChanged.AddListener(delegate (bool val) { MillenaleSelected(val); });
         Decennale.onValueChanged.AddListener(delegate (bool val) { DecennaleSelected(val); });
@@ -45,11 +49,11 @@ public class UIManager : MonoBehaviour
         Speed2x.onClick.AddListener(delegate () { SpeedSelected(2); });
         Speed5x.onClick.AddListener(delegate () { SpeedSelected(5); });
         Speed10x.onClick.AddListener(delegate () { SpeedSelected(10); });
-        PlayButton.onClick.AddListener(delegate () { PlaySimulation(); });
+        PlayButton.onClick.AddListener(delegate () { PlayOrStopSimulation(); });
         CloseApp.onClick.AddListener(delegate () { Application.Quit(); });
         ThresholdSlider.onValueChanged.AddListener(delegate (float val) { ThresholdChanged(val); });
         Stockage.onValueChanged.AddListener(delegate (bool val) { manager.ChangeTerrainState(val); });
-        Batardeaux.onValueChanged.AddListener(delegate (bool val) { manager.EnableBatardeaux(val); });  
+        Batardeaux.onValueChanged.AddListener(delegate (bool val) { manager.EnableBatardeaux(val); });
         List<TMP_Dropdown.OptionData> casierOptions = new List<TMP_Dropdown.OptionData>
         {
             new TMP_Dropdown.OptionData() { text = "Non" }
@@ -58,6 +62,12 @@ public class UIManager : MonoBehaviour
             casierOptions.Add(new TMP_Dropdown.OptionData() { text = sector });
         CasiersDropdown.options = casierOptions;
         CasiersDropdown.onValueChanged.AddListener(delegate (int val) { CasierSelected(val); });
+    }
+
+    void SimControlClicked(object sender, EventArgs e)
+    {
+        manager.PauseOrResumeSimulation(selectedSpeed);
+        SimControl.sprite = manager.Paused ? play : pause;
     }
 
     public void ClearChartData()
@@ -110,7 +120,7 @@ public class UIManager : MonoBehaviour
     {
     }
 
-    void OpenCloseParametersClicked()
+    public void OpenCloseParametersClicked()
     {
         ParametersLabel.text = Parameters.activeSelf ? ">" : "<";
         Parameters.SetActive(!Parameters.activeSelf);
@@ -197,7 +207,7 @@ public class UIManager : MonoBehaviour
         manager.SelectedPumpCasier = CasiersDropdown.options[val].text;
     }
 
-    void PlaySimulation()
+    public void PlayOrStopSimulation()
     {
         if (!manager.Playing && selectedSpeed != 0 && (Millenale.isOn || Decennale.isOn))
         {
@@ -206,6 +216,7 @@ public class UIManager : MonoBehaviour
             OpenCloseParametersClicked();
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Finir la simulation";
             ChangeComponentsInteractable(false);
+            SimControl.gameObject.SetActive(true);
         }
         else if (manager.Playing)
         {
@@ -213,6 +224,8 @@ public class UIManager : MonoBehaviour
             Destroy(WaterLevelLineChart.gameObject);
             PlayButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().text = "Lancer la simulation";
             ChangeComponentsInteractable(true);
+            SimControl.gameObject.SetActive(false);
+            SimControl.sprite = pause;
         }
         ModifyPlayButtonProperties(manager.Playing);
     }

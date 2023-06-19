@@ -8,6 +8,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using XCharts.Runtime;
@@ -68,6 +69,7 @@ public class TwinManager : MonoBehaviour
 
     public Component ActiveBuildingInfo;
     public bool Playing { get; set; }
+    public bool Paused { get; set; } = false;
     public float FloodThreshold { get; set; } = 0.25f;
     public int SelectedFloodYear { get; set; }
     public string SelectedPumpCasier { get; set; } = "Non";
@@ -88,7 +90,7 @@ public class TwinManager : MonoBehaviour
         }
 
         floodsPerYear.Add(1994, Context.WaterFloods.Where(f => f.Year == 1994).OrderBy(f => f.Time).ToList());
-        floodsPerYear.Add(9999, Context.WaterFloods.Where(f => f.Year == 9999).OrderBy(f => f.Time).ToList());
+        floodsPerYear.Add(9999, Context.WaterFloods.Where(f => f.Year == 9999 && f.Time > 2250).OrderBy(f => f.Time).ToList());
 
         Dictionary<string, float> auxDict = new Dictionary<string, float>()
         {
@@ -238,9 +240,19 @@ public class TwinManager : MonoBehaviour
         InvokeRepeating(nameof(UpdateWaterLevel), 0, 0.02f / speed);
     }
 
+    public void PauseOrResumeSimulation(int speed)
+    {
+        if(!Paused)
+            CancelInvoke(nameof(UpdateWaterLevel));
+        else
+            InvokeRepeating(nameof(UpdateWaterLevel), 0, 0.02f / speed);
+
+        Paused = !Paused;
+    }
+
     public void StopSimulation()
     {
-        Playing = false;
+        Playing = Paused = false;
         GameObject.Find("UI").GetComponent<UIManager>().DisableAlert();
         foreach (GameObject floodSector in floodSectorGameObjects)
         {
@@ -287,6 +299,10 @@ public class TwinManager : MonoBehaviour
             if (floodSectorData == null)
             {
                 SelectedFlood = aux.ToList();
+                uiManager.PlayOrStopSimulation();
+                uiManager.Parameters.SetActive(true);
+                uiManager.OpenCloseParametersClicked();
+                StopSimulation();
                 aux.Clear();
                 break;
             }
