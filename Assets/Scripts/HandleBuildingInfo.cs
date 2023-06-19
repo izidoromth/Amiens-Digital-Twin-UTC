@@ -1,9 +1,16 @@
 using Assets.Scripts;
 using DatabaseConnection.Entities;
+using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class HandleBuildingInfo : MonoBehaviour
+public interface ICustomMessageTarget : IEventSystemHandler
+{
+    void ResetColor();
+}
+
+public class HandleBuildingInfo : MonoBehaviour, ICustomMessageTarget
 {
     TwinManager manager;
     bool flooding;
@@ -13,7 +20,8 @@ public class HandleBuildingInfo : MonoBehaviour
     Color color;
     void Start()
     {
-        color = GetComponent<MeshRenderer>().material.color;
+        if (GetComponent<MeshRenderer>() != null)
+            color = GetComponent<MeshRenderer>().material.color;
     }
     void Update()
     {
@@ -70,5 +78,11 @@ public class HandleBuildingInfo : MonoBehaviour
         GetComponent<MeshRenderer>().material.SetColor("_Color", color);
         if (setBuildingInfoComponent is not null)
             setBuildingInfoComponent.FloodHeight = "0";
+    }
+
+    public void ResetColor()
+    {
+        if(GetComponent<MeshRenderer>() != null)
+            GetComponent<MeshRenderer>().material.SetColor("_Color", color);
     }
 }

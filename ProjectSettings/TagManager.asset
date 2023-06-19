@@ -7,6 +7,7 @@ TagManager:
   - BuildingInfo
   - Buildings
   - BuildingsNew
+  - FloodSector
   layers:
   - Default
   - TransparentFX

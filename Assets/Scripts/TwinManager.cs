@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using XCharts.Runtime;
 
 public class TwinManager : MonoBehaviour
@@ -244,6 +245,10 @@ public class TwinManager : MonoBehaviour
         foreach (GameObject floodSector in floodSectorGameObjects)
         {
             floodSector.SetActive(false);
+        }
+        foreach(GameObject building in GameObject.FindGameObjectsWithTag("Buildings"))
+        {
+            ExecuteEvents.Execute<ICustomMessageTarget>(building, null, (x, y) => x.ResetColor());
         }
         SelectedFlood = floodsPerYear[SelectedFloodYear].ToList();
         aux = new List<WaterFlood>();
