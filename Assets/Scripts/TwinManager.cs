@@ -11,6 +11,7 @@ using System.Text;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.ProBuilder.Shapes;
 using XCharts.Runtime;
 
 public class TwinManager : MonoBehaviour
@@ -237,7 +238,7 @@ public class TwinManager : MonoBehaviour
         foreach (GameObject floodSector in floodSectorGameObjects) { floodSector.SetActive(true); }
         SelectedFlood = floodsPerYear[SelectedFloodYear].ToList();
         aux = new List<WaterFlood>();
-        InvokeRepeating(nameof(UpdateWaterLevel), 0, 0.02f / speed);
+        InvokeRepeating(nameof(UpdateWaterLevel), 0, 0.06f / speed);
     }
 
     public void PauseOrResumeSimulation(int speed)
@@ -348,7 +349,8 @@ public class TwinManager : MonoBehaviour
 
         if(SelectedPumpCasier == "Non")
         {
-            uiManager.AddSeriesData(time, Math.Round(avgHeight / floodSectorGameObjects.Count, 3));
+            TimeSpan t = TimeSpan.FromHours(time);
+            uiManager.AddSeriesData(Math.Round(t.Days + t.Hours/24f, 1), Math.Round(avgHeight / floodSectorGameObjects.Count, 3));
 
             // show water level alert
             if (avgHeight / floodSectorGameObjects.Count > FloodThreshold && !alertEnabled)

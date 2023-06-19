@@ -89,7 +89,7 @@ public class UIManager : MonoBehaviour
         Destroy(alert);
     }
 
-    public void AddSeriesData(int x, double y) => lineChart.series[0]?.AddXYData(x, y);
+    public void AddSeriesData(double x, double y) => lineChart.series[0]?.AddXYData(x, y);
 
     void CreateWaterLevelLineChart()
     {
@@ -106,7 +106,9 @@ public class UIManager : MonoBehaviour
         lineChart.GetChartComponent<XAxis>().type = Axis.AxisType.Value;
         lineChart.GetChartComponent<XAxis>().minMaxType = Axis.AxisMinMaxType.MinMax;
         lineChart.GetChartComponent<YAxis>().type = Axis.AxisType.Value;
-        lineChart.GetChartComponent<YAxis>().minMaxType = Axis.AxisMinMaxType.MinMax;
+        lineChart.GetChartComponent<YAxis>().minMaxType = Axis.AxisMinMaxType.Custom;
+        lineChart.GetChartComponent<YAxis>().min = 0;
+        lineChart.GetChartComponent<YAxis>().max = Math.Round(1.5, 1);
 
         // adjust size and position
         WaterLevelLineChart.transform.SetParent(GameObject.Find("UI").transform, false);
@@ -127,10 +129,10 @@ public class UIManager : MonoBehaviour
         Parameters.SetActive(!Parameters.activeSelf);
     }
 
-    public void UpdateTimestamp(int minutes)
+    public void UpdateTimestamp(int hours)
     {
-        TimeSpan t = TimeSpan.FromMinutes(minutes);
-        Timestamp.text = string.Format("{0:D2}j {1:D2}h {2:D2}m", t.Days, t.Hours, t.Minutes);
+        TimeSpan t = TimeSpan.FromHours(hours);
+        Timestamp.text = string.Format("{0:D2}j {1:D2}h", t.Days, t.Hours);
     }
 
     void MillenaleSelected(bool val)
