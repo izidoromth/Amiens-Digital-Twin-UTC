@@ -101,7 +101,7 @@ public class UIManager : MonoBehaviour
         lineChart.RemoveAllSerie();
         lineChart.AddSerie<Line>();
 
-        lineChart.GetChartComponent<Title>().text = "Average Water Level (m)";
+        lineChart.GetChartComponent<Title>().text = "Niveau moyen des eaux (m)";
         lineChart.GetChartComponent<GridCoord>().left = .2f;
         lineChart.GetChartComponent<XAxis>().type = Axis.AxisType.Value;
         lineChart.GetChartComponent<XAxis>().minMaxType = Axis.AxisMinMaxType.MinMax;
@@ -130,7 +130,7 @@ public class UIManager : MonoBehaviour
     public void UpdateTimestamp(int minutes)
     {
         TimeSpan t = TimeSpan.FromMinutes(minutes);
-        Timestamp.text = string.Format("{0:D2}d {1:D2}h {2:D2}m", t.Days, t.Hours, t.Minutes);
+        Timestamp.text = string.Format("{0:D2}j {1:D2}h {2:D2}m", t.Days, t.Hours, t.Minutes);
     }
 
     void MillenaleSelected(bool val)
