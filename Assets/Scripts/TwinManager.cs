@@ -70,7 +70,7 @@ public class TwinManager : MonoBehaviour
     public Component ActiveBuildingInfo;
     public bool Playing { get; set; }
     public bool Paused { get; set; } = false;
-    public float FloodThreshold { get; set; } = 0.25f;
+    public float FloodThreshold { get; set; } = 2f;
     public int SelectedFloodYear { get; set; }
     public string SelectedPumpCasier { get; set; } = "Non";
     public float PumpValue { get; set; } = 100;
@@ -349,6 +349,18 @@ public class TwinManager : MonoBehaviour
         if(SelectedPumpCasier == "Non")
         {
             uiManager.AddSeriesData(time, Math.Round(avgHeight / floodSectorGameObjects.Count, 3));
+
+            // show water level alert
+            if (avgHeight / floodSectorGameObjects.Count > FloodThreshold && !alertEnabled)
+            {
+                uiManager.ShowAlert();
+                alertEnabled = true;
+            }
+            else if (avgHeight / floodSectorGameObjects.Count < FloodThreshold && alertEnabled)
+            {
+                uiManager.DisableAlert();
+                alertEnabled = false;
+            }
         }
 
         if(aux.Count == 0)
