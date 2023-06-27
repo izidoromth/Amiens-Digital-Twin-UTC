@@ -107,8 +107,9 @@ public class UIManager : MonoBehaviour
         lineChart.GetChartComponent<XAxis>().minMaxType = Axis.AxisMinMaxType.MinMax;
         lineChart.GetChartComponent<YAxis>().type = Axis.AxisType.Value;
         lineChart.GetChartComponent<YAxis>().minMaxType = Axis.AxisMinMaxType.Custom;
+        lineChart.GetChartComponent<YAxis>().splitNumber = 5;
         lineChart.GetChartComponent<YAxis>().min = 0;
-        lineChart.GetChartComponent<YAxis>().max = Math.Round(1.5, 1);
+        lineChart.GetChartComponent<YAxis>().max = 2.1;
 
         // adjust size and position
         WaterLevelLineChart.transform.SetParent(GameObject.Find("UI").transform, false);

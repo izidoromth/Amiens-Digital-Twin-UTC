@@ -1,3 +1,4 @@
+using Assets.Scripts;
 using DatabaseConnection.Context;
 using DatabaseConnection.Entities;
 using Dummiesman;
@@ -78,17 +79,19 @@ public class TwinManager : MonoBehaviour
 
     void Start()
     {
-        // Connect to the database
-        try
-        {
-            Context = DbConnectionContext.GetContext<AmiensDigitalTwinDbContext>(
-            (options, defaultSchema) => { return new AmiensDigitalTwinDbContext(options, defaultSchema); },
-            "postgres", "12345678", "amiens_digital_twin", port: "5433");
-        }
-        catch (Exception ex)
-        {
-            Debug.Log(ex.Message);
-        }
+        //// Connect to the database
+        //try
+        //{
+        //    Context = DbConnectionContext.GetContext<AmiensDigitalTwinDbContext>(
+        //    (options, defaultSchema) => { return new AmiensDigitalTwinDbContext(options, defaultSchema); },
+        //    "postgres", "12345678", "amiens_digital_twin", port: "5433");
+        //}
+        //catch (Exception ex)
+        //{
+        //    Debug.Log(ex.Message);
+        //}
+
+        Context = ConnectionHelper.Context;
 
         floodsPerYear.Add(1994, Context.WaterFloods.Where(f => f.Year == 1994).OrderBy(f => f.Time).ToList());
         floodsPerYear.Add(9999, Context.WaterFloods.Where(f => f.Year == 9999 && f.Time > 2250).OrderBy(f => f.Time).ToList());
@@ -334,10 +337,11 @@ public class TwinManager : MonoBehaviour
             }
 
             // update chart
-            time = floodSectorData.Time.Value; 
+            time = floodSectorData.Time.Value;
             if (SelectedPumpCasier == floodSector.name)
             {
-                uiManager.AddSeriesData(time, Math.Round(newHeight, 3));
+                TimeSpan t = TimeSpan.FromHours(time);
+                uiManager.AddSeriesData(Math.Round(t.Days + t.Hours / 24f, 1), Math.Round(newHeight, 3));
             }
 
             // update water level list and aux list
